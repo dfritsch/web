@@ -25,8 +25,19 @@ class Controller extends AbstractController
     // set as final to force output buffering
     final public function execute()
     {
+        $input = $this->getInput();
+        $task = $input->get('task', false);
+
         ob_start();
-        $response = $this->doExecute();
+        if ($task && method_exists($this, $task)) {
+            $reflection = new \ReflectionMethod($this, $task);
+            if (!$reflection->isPublic()) {
+              throw new \RuntimeException("The called method is not public.");
+            }
+            $response = $this->$task();
+        } else {
+            $response = $this->doExecute();
+        }
         $data = ob_get_clean();
 
         if ($data) {

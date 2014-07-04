@@ -10,6 +10,7 @@ use Webity\Web\Input\Router;
 use Webity\Web\Oauth2\Server as OauthServer;
 use Webity\Web\Document\Document;
 use Webity\Web\Layout\File as Layout;
+use PHPMailer;
 
 class WebApp extends AbstractWebApplication
 {
@@ -28,6 +29,7 @@ class WebApp extends AbstractWebApplication
 	protected $template_layout = 'template';
 	protected $controller_paths = array();
 	protected $session = null;
+	protected static $mailer = null;
 
 	public function __construct(Input $input = null, Registry $config = null, Web\WebClient $client = null)
 	{
@@ -47,6 +49,7 @@ class WebApp extends AbstractWebApplication
 		parent::__construct($input, $config, $client);
 
 		$this->document = new Document();
+		$this->document->setbase($this->config->get('uri.base.path'));
 	}
 
 	private function loadSession() {
@@ -164,7 +167,7 @@ class WebApp extends AbstractWebApplication
 			} catch (Exception $e) {
 				throw new \Exception('Unable to Authenticate User: ' . $e->getMessage(), 401);
 			}
-		} 
+		}
 
 		return $this;
 	}
@@ -196,6 +199,56 @@ class WebApp extends AbstractWebApplication
 		}
 	}
 
+	public function getMailer()
+	{
+		if (!self::$mailer)
+		{
+			self::$mailer = self::createMailer();
+		}
+
+		$copy = clone self::$mailer;
+
+		return $copy;
+	}
+
+	protected function createMailer()
+	{
+
+		$smtpauth = ($this->get('smtpauth') == 0) ? null : 1;
+		$smtpuser = $this->get('smtpuser');
+		$smtppass = $this->get('smtppass');
+		$smtphost = $this->get('smtphost');
+		$smtpsecure = $this->get('smtpsecure');
+		$smtpport = $this->get('smtpport');
+		$mailfrom = $this->get('mailfrom');
+		$fromname = $this->get('fromname');
+		$mailer = $this->get('mailer');
+
+		// Create a JMail object
+		$mail = new PHPMailer;
+
+		// Set default sender without Reply-to
+		$mail->SetFrom($mailfrom, $fromname, 0);
+
+		// Default mailer is to use PHP's mail function
+		switch ($mailer)
+		{
+			case 'smtp':
+				$mail->useSMTP($smtpauth, $smtphost, $smtpuser, $smtppass, $smtpsecure, $smtpport);
+				break;
+
+			case 'sendmail':
+				$mail->IsSendmail();
+				break;
+
+			default:
+				$mail->IsMail();
+				break;
+		}
+
+		return $mail;
+	}
+
 	public function route()
 	{
 		$this->markDebug('Start Routing');
@@ -203,10 +256,10 @@ class WebApp extends AbstractWebApplication
 		if ($this->config->get('uri.route') == 'logout') {
 			$this->logout();
 		}
-		
+
 		$router = new Router($this->input);
 		$router->setDefaultController('\\Webity\\Web\\Controller\\Controller');
-		
+
 		$this->controller = $router->getController($this->config->get('uri.route'));
 
 		$this->markDebug('Complete Routing');
@@ -275,13 +328,14 @@ class WebApp extends AbstractWebApplication
 	protected function loadTemplate() {
 
 		$template = new \League\Plates\Template($this->getTemplateEngine());
+		$template->application = $this;
 		$template->content = $this->getBody();
 		$template->document = $this->getDocument();
 		$template->layout($this->getTemplateLayout());
 		$template->path = $this->config->get('uri.base.path');
 		$template->media = $this->config->get('uri.media.path');
 		$template->user = $this->getUser();
-		
+
 		// Render the template
 		$this->setBody($template->render('render'));
 
