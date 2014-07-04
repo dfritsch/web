@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="credentials"
+		label="Login">
+
+		<field name="username" type="text"
+			class="validate-username"
+			filter="username"
+			label="Username"
+			size="25"
+			required="true"
+			validate="username"
+		/>
+
+		<field name="password" type="password"
+			class="validate-password"
+			required="true"
+			filter="raw"
+			label="Password"
+			size="25"
+		/>
+	</fieldset>
+</form>
