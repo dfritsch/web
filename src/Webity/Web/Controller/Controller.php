@@ -52,17 +52,31 @@ class Controller extends AbstractController
 
     protected function doExecute()
     {
-        $displayData = array(
-            'message' => 'The default controller is only set to print this message.'
-        );
-        $layout = new \Webity\Web\Layout\File('Error');
-        echo $layout->render($displayData);
+        // $displayData = array(
+        //     'message' => 'The default controller is only set to print this message.'
+        // );
+        // $layout = new \Webity\Web\Layout\File('Error');
+        // echo $layout->render($displayData);
+        $view = $this->getView();
+        
+        var_dump($this->getApplication()->input);
+
+        echo $view;
     }
 
     protected function doPost() {
-        $this->getModel()->save();
+
+
         $app = $this->getApplication();
-        $app->redirect($app->get('uri.base.full') . strtolower(basename($this->directory)));
+
+        if($this->getModel()->save()) {
+            $app->redirect($app->get('uri.base.full') . strtolower(basename($this->directory)));
+        } else {
+            //go back to the same view with the data intact
+            $_SESSION['form'] = $app->input->post->get('jform', array(), 'ARRAY');
+            $app->redirect('form');
+        }
+
     }
 
     protected function getModel() {

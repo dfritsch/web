@@ -49,10 +49,12 @@ class View extends AbstractHtmlView
 		$getMethod .= ($this->layout != 'default') ? "get" . ucwords($this->layout) : "getItems";
 
 		if(method_exists($this->model, $getMethod)) {
+
 			$this->data = $this->model->$getMethod($input->get('id'));
+
 		} else {
 			//throw an error here? maybe just do nothing instead?
-			exit($getMethod . " method didn't exist");
+			$this->data = array();
 		}
 
 		return parent::render();

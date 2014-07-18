@@ -5,10 +5,11 @@ use Joomla\Model\AbstractDatabaseModel;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Registry\Registry;
 use Joomla\Form\Form;
+use Webity\Web\Application\WebApp;
 
 class Model extends AbstractDatabaseModel
 {
-	protected $directory = '';
+    protected $directory = '';
     protected $namespace = '';
 
     public function __construct(DatabaseDriver $db, Registry $state = null) {
@@ -19,18 +20,76 @@ class Model extends AbstractDatabaseModel
         return parent::__construct($db, $state);
     }
 
-    public function getForm($name, $data = array()) {
-    	return $this->loadForm($name, $data);
+
+    public function getItems($id = null) {
+        $app = WebApp::getInstance();
+        $api = $app->getApi();
+
+        $object_name = strtolower(basename($this->directory));
+
+        return $api->query($object_name . '/' . $id)->data;
     }
 
-	protected function loadForm($name, $data = array()) {
-		$form = new Form($name);
-		$form->loadFile($this->directory . '/forms/' . $name . '.xml');
+    //sort of like an alias for getItems (because of the naming conventions of things)
+    public function getItem($id = null) {
+        return $this->getItems($id);
+    }
 
-		if ($data) {
-			$form->bind($data);
-		}
+    public function getForm($id = null, $data = array(), $name = null) {
+        if($id) {
+            $data = (array) $this->getItems($id);
+        }
 
-		return $form;
-	}
+        if($_SESSION['form']) {
+            $data = $_SESSION['form'];
+            unset($data['password']); //never let the password be passed back
+            unset($_SESSION['form']); //don't let the form session data persist
+        }
+
+        return $this->loadForm($data, $name);
+    }
+
+    protected function loadForm($data = array(), $name = null) {
+        //so we don't HAVE to pass the name of the form
+        if(!$name) {
+            $name = strtolower(basename($this->directory));
+        }
+
+        $form = new Form($name, array('control' => 'jform'));
+        $form->loadFile($this->directory . '/forms/' . $name . '.xml');
+
+        if ($data) {
+            $form->bind($data);
+        }
+
+        return $form;
+    }
+
+    public function save() {
+        $app = WebApp::getInstance();
+        $api = $app->getApi();
+        $input = $app->input;
+
+        $data = $input->post->get('jform', array(), 'ARRAY');
+
+        //because mimic does their naming this way
+        $object_name = basename($this->directory);
+        $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
+        $object_id = $data[$id];
+
+        $return = true;
+
+        try {
+            //try saving it
+            $api->query($object_name . '/' . $object_id, $data, array(), 'post');
+        } catch(\InvalidArgumentException $e) {
+            $return = false;
+        } catch(\RuntimeException $e) {
+            $return = false;
+        }
+
+        return $return;
+    }
+
+
 }
