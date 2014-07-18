@@ -52,21 +52,12 @@ class Controller extends AbstractController
 
     protected function doExecute()
     {
-        // $displayData = array(
-        //     'message' => 'The default controller is only set to print this message.'
-        // );
-        // $layout = new \Webity\Web\Layout\File('Error');
-        // echo $layout->render($displayData);
         $view = $this->getView();
-        
-        var_dump($this->getApplication()->input);
-
         echo $view;
     }
 
-    protected function doPost() {
-
-
+    protected function doPost()
+    {
         $app = $this->getApplication();
 
         if($this->getModel()->save()) {

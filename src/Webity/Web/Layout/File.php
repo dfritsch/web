@@ -89,6 +89,7 @@ class File extends Base
 	 */
 	protected function getPath()
 	{
+
 		if (is_null($this->fullPath) && !empty($this->layoutId))
 		{
 			$rawPath = str_replace('.', '/', $this->layoutId) . '.php';
