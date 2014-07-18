@@ -49,7 +49,7 @@ class File extends Base
 	public function __construct($layoutId, $basePath = null)
 	{
 		$this->layoutId = $layoutId;
-		$this->basePath = is_null($basePath) ? JPATH_ROOT . '/src/Webity/Web/Layouts' : rtrim($basePath, DIRECTORY_SEPARATOR);
+		$this->basePath = is_null($basePath) ? dirname(__DIR__) . '/Layouts' : rtrim($basePath, DIRECTORY_SEPARATOR);
 	}
 
 	/**
