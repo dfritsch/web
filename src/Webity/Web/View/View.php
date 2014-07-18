@@ -8,6 +8,8 @@ use Webity\Web\Layout\File as Layout;
 class View extends AbstractHtmlView
 {
 
+	protected $layout = '';
+
 	public function __construct($model, $paths = null)
 	{
 		parent::__construct($model, $paths);
@@ -28,6 +30,32 @@ class View extends AbstractHtmlView
 	protected function getDocument() {
 		$app = WebApp::getInstance();
 		return $app->getDocument();
+	}
+
+	public function render() {
+
+		$input = WebApp::getInstance()->input;
+
+		if(!$this->layout) {
+			//set the correct layout
+			if($input->get('id')) {
+				$this->layout = $input->get('layout', 'item');
+			} else {
+				$this->layout = $input->get('layout', 'default');
+			}
+		}
+
+		//probably will need to check if the method exists...
+		$getMethod .= ($this->layout != 'default') ? "get" . ucwords($this->layout) : "getItems";
+
+		if(method_exists($this->model, $getMethod)) {
+			$this->data = $this->model->$getMethod($input->get('id'));
+		} else {
+			//throw an error here? maybe just do nothing instead?
+			exit($getMethod . " method didn't exist");
+		}
+
+		return parent::render();
 	}
 
 	protected function renderLayout($name, $data = array()) {

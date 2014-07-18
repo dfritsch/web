@@ -27,6 +27,7 @@ class Controller extends AbstractController
     {
         $input = $this->getInput();
         $task = $input->get('task', false);
+        $method = $_SERVER['REQUEST_METHOD'];
 
         ob_start();
         if ($task && method_exists($this, $task)) {
@@ -35,6 +36,8 @@ class Controller extends AbstractController
               throw new \RuntimeException("The called method is not public.");
             }
             $response = $this->$task();
+        } else if($method == 'POST') {
+            $response = $this->doPost();
         } else {
             $response = $this->doExecute();
         }
@@ -54,6 +57,12 @@ class Controller extends AbstractController
         );
         $layout = new \Webity\Web\Layout\File('Error');
         echo $layout->render($displayData);
+    }
+
+    protected function doPost() {
+        $this->getModel()->save();
+        $app = $this->getApplication();
+        $app->redirect($app->get('uri.base.full') . strtolower(basename($this->directory)));
     }
 
     protected function getModel() {
