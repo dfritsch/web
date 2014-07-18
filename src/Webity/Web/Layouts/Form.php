@@ -45,18 +45,16 @@
 	            echo $field->input;
 	        elseif (strtolower($field->type) == 'editor'):
 	        	?>
-	        <div class="control-group">
+	        <div class="form-group">
 	            <?php echo $field->label; ?>
 				<?php echo $field->input; ?>
 	        </div>
 	        <?php
 	        else:
 	        ?>
-	        <div class="control-group">
+	        <div class="form-group">
 	            <?php echo str_replace('<label', '<label class="control-label"', $field->label); ?>
-	            <div class="controls">
-	                <?php echo $field->input; ?>
-	            </div>
+	            <?php echo $field->input; ?>
 	        </div>
 	        <?php
 	        endif;

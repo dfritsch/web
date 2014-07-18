@@ -336,10 +336,16 @@ class WebApp extends AbstractWebApplication
 		$template->media = $this->config->get('uri.media.path');
 		$template->user = $this->getUser();
 
+		$template = $this->alterTemplate($template);
+
 		// Render the template
 		$this->setBody($template->render('render'));
 
 		return true;
+	}
+
+	protected function alterTemplate($template) {
+		return $template;
 	}
 
     public function raiseError($message = '', $code = 404)
