@@ -86,7 +86,12 @@ class Model extends AbstractDatabaseModel
         $input = $app->input;
 
         $data = $input->post->get('jform', array(), 'ARRAY');
+        $data['files'] = $input->files->get('jform'); //just a generic way to get all of the files included
         $parent_id = $input->get('parent_id');
+
+        // echo '<pre>';
+        // var_dump($data);
+        // exit();
 
         //because mimic does their naming this way
         $object_name = basename($this->directory);
