@@ -29,6 +29,5 @@
             "Psr": "vendor/psr/cache",
             "Webity": "src/"
         }
-    },
-    "minimum-stability": "beta"
+    }
 }
