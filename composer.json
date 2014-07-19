@@ -9,7 +9,7 @@
         "php": ">=5.3.10",
         "psr/log": "~1.0",
         "bshaffer/oauth2-server-php": "v1.3",
-        "dfritsch/joomla-framework": "dev-formupgrade",
+        "joomla/framework": "dev-formupgrade",
         "league/plates": "2.*"
     },
     "repositories": [
