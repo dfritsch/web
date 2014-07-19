@@ -25,9 +25,24 @@ class Model extends AbstractDatabaseModel
         $app = WebApp::getInstance();
         $api = $app->getApi();
 
-        $object_name = strtolower(basename($this->directory));
 
-        return $api->query($object_name . '/' . $id)->data;
+        $object_name = strtolower(basename($this->directory));
+        $url = $object_name . '/' . $id;
+        $parent_id = $app->input->get('parent_id');
+
+        if($parent_id) {
+            $url .= '?parent_id=' . $parent_id;
+        }
+
+        try {
+            $return = $api->query($url)->data;
+        } catch(\InvalidArgumentException $e) {
+            $return = array();
+        } catch(\RuntimeException $e) {
+            $return = array();
+        }
+
+        return $return;
     }
 
     //sort of like an alias for getItems (because of the naming conventions of things)
