@@ -28,11 +28,6 @@ class Model extends AbstractDatabaseModel
 
         $object_name = strtolower(basename($this->directory));
         $url = $object_name . '/' . $id;
-        $parent_id = $app->input->get('parent_id');
-
-        if($parent_id) {
-            $url .= '?parent_id=' . $parent_id;
-        }
 
         try {
             $return = $api->query($url)->data;
@@ -86,7 +81,7 @@ class Model extends AbstractDatabaseModel
         $input = $app->input;
 
         $data = $input->post->get('jform', array(), 'ARRAY');
-        $parent_id = $input->get('parent_id');
+        $form = $this->loadForm($data);
 
         //because mimic does their naming this way
         $object_name = basename($this->directory);
@@ -96,9 +91,7 @@ class Model extends AbstractDatabaseModel
         $return = true;
         try {
             $url = $object_name . '/' . $object_id;
-            if($parent_id) {
-                $url .= '?parent_id=' . $parent_id;
-            }
+
             //try saving it
             $api->query($url, $data, array(), 'post');
         } catch(\InvalidArgumentException $e) {
