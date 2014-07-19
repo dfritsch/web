@@ -5,19 +5,19 @@
     "keywords": ["web","framework"],
     "homepage": "http://www.makethewebwork.com",
     "license": "All Rights Reserved",
-    "require": {
-        "php": ">=5.3.10",
-        "psr/log": "~1.0",
-        "bshaffer/oauth2-server-php": "v1.3",
-        "joomla/framework": "dev-formupgrade",
-        "league/plates": "2.*"
-    },
     "repositories": [
         {
             "type": "vcs",
             "url":  "git@github.com:dfritsch/joomla-framework.git"
         }
     ],
+    "require": {
+        "php": ">=5.3.10",
+        "psr/log": "~1.0",
+        "bshaffer/oauth2-server-php": "v1.3",
+        "joomla/framework": "dev-form-upgrade",
+        "league/plates": "2.*"
+    },
     "require-dev": {
          "symfony/yaml": "~2.0"
     },
