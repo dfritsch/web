@@ -9,9 +9,15 @@
         "php": ">=5.3.10",
         "psr/log": "~1.0",
         "bshaffer/oauth2-server-php": "v1.3",
-        "joomla/framework": "*",
+        "dfritsch/joomla-framework": "dev-form-upgrade",
         "league/plates": "2.*"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url":  "git@github.com:dfritsch/joomla-framework.git"
+        }
+    ],
     "require-dev": {
          "symfony/yaml": "~2.0"
     },
