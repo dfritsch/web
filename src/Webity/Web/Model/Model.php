@@ -25,6 +25,7 @@ class Model extends AbstractDatabaseModel
         $app = WebApp::getInstance();
         $api = $app->getApi();
 
+        $return = array();
 
         $object_name = strtolower(basename($this->directory));
         $url = $object_name . '/' . $id;
@@ -32,9 +33,7 @@ class Model extends AbstractDatabaseModel
         try {
             $return = $api->query($url)->data;
         } catch(\InvalidArgumentException $e) {
-            $return = array();
         } catch(\RuntimeException $e) {
-            $return = array();
         }
 
         return $return;
@@ -46,9 +45,7 @@ class Model extends AbstractDatabaseModel
     }
 
     public function getForm($id = null, $data = array(), $name = null) {
-        if($id) {
-            $data = (array) $this->getItems($id);
-        }
+        $data = (array) $this->getItems($id);
 
         if($_SESSION['form']) {
             $data = $_SESSION['form'];
@@ -59,13 +56,13 @@ class Model extends AbstractDatabaseModel
         return $this->loadForm($data, $name);
     }
 
-    protected function loadForm($data = array(), $name = null) {
+    protected function loadForm($data = array(), $name = null, $opts = array('control' => 'jform')) {
         //so we don't HAVE to pass the name of the form
         if(!$name) {
             $name = strtolower(basename($this->directory));
         }
 
-        $form = new Form($name, array('control' => 'jform'));
+        $form = new Form($name, $opts);
         $form->loadFile($this->directory . '/forms/' . $name . '.xml');
 
         if ($data) {
@@ -80,26 +77,37 @@ class Model extends AbstractDatabaseModel
         $api = $app->getApi();
         $input = $app->input;
 
-        $data = $input->post->get('jform', array(), 'ARRAY');
-        $form = $this->loadForm($data);
+        $submission = $input->post->get('jform', array(), 'ARRAY');
+        $submission = array_merge($submission, $input->files->get('jform'));
+        $form = $this->loadForm($submission, null, array());
+
+        $data = $form->processSave();
+
+        if ($data->image) {
+            $data->image = '@' . $data->image;
+        }
 
         //because mimic does their naming this way
         $object_name = basename($this->directory);
         $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
-        $object_id = $data[$id];
+        $object_id = $data->$id;
 
         $return = true;
         try {
             $url = $object_name . '/' . $object_id;
 
             //try saving it
-            $api->query($url, $data, array(), 'post');
+            var_dump($api->query($url, $data, array('Content-Type' => 'multipart/form-data; charset=utf-8'), 'post'));
         } catch(\InvalidArgumentException $e) {
+            var_dump($e);
             $return = false;
         } catch(\RuntimeException $e) {
+            var_dump($e);
             $return = false;
         }
-
+        if (!$return) {
+            exit();
+        }
         return $return;
     }
 
