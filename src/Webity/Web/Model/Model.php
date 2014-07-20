@@ -45,7 +45,9 @@ class Model extends AbstractDatabaseModel
     }
 
     public function getForm($id = null, $data = array(), $name = null) {
-        $data = (array) $this->getItems($id);
+        if (!$data) {
+            $data = (array) $this->getItems($id);
+        }
 
         if($_SESSION['form']) {
             $data = $_SESSION['form'];
