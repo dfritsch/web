@@ -6,7 +6,7 @@ use Webity\Web\Application\WebApp;
 
 class Model extends WebityModel
 {
-	public function getItems() {
+	public function getItems($id = null) {
 		return array();
 	}
 
