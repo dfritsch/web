@@ -26,7 +26,7 @@ if (!check4Copy) {
 }
 
 function ajaxsave(url, data, context) {
-	jQuery.ajax({
+	context.closest('form').ajaxForm().ajaxSubmit({
 		url: url,
 		data: data,
 		dataType: 'json',

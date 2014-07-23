@@ -90,10 +90,10 @@ class Model extends AbstractDatabaseModel
         $object_name = strtolower(basename($this->directory));
 
         $submission = $input->post->get('jform', array(), 'ARRAY');
-        if ($files = $input->files->get('jform')) {
-            $submission = array_merge($submission, $files);
-        }
         $form = $this->loadForm($submission, null, array());
+        if ($files = $input->files->get('jform')) {
+            $form->bind($files);
+        }
 
         $data = $form->processSave();
 
