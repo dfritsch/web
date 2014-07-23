@@ -34,9 +34,7 @@ function ajaxsave(url, data, context) {
 		context: context,
 		success: function(msg) {
 			if (msg.error) {
-				$msg = '<p class="bg-danger">' + msg.error + '</p>';
-				jQuery('#system-messages').append($msg);
-				jQuery('#system-messages').find('p').last().delay(8000).slideUp();
+				push_msg(msg.error);
 			} else {
 				jQuery('.subtables fieldset > div').show();
 				if (msg.id) {
@@ -67,9 +65,7 @@ function ajaxsave(url, data, context) {
 			console.log(msg);
 			jQuery(this).remove();
 
-			$msg = '<p class="bg-success">Item saved successfully</p>';
-			jQuery('#system-messages').append($msg);
-			jQuery('#system-messages').find('p').last().delay(8000).slideUp();
+			push_msg('Item saved successfully', 'bg-success');
 
 		},
 		error: function (x, status, error) {
@@ -78,11 +74,18 @@ function ajaxsave(url, data, context) {
 
 			jQuery(this).remove();
 
-			$msg = '<p class="bg-danger">Error saving item</p>';
-			jQuery('#system-messages').append($msg)
-			jQuery('#system-messages').find('p').last().delay(8000).slideUp();
+			push_msg('Error saving item');
 		}
 	})
+}
+
+function push_msg(msg, msgClass) {
+	if (!msgClass) {
+		msgClass = 'bg-danger'
+	}
+	$msg = '<p class="' + msgClass + '">' + msg + '</p>';
+	jQuery('#system-messages').append($msg)
+	jQuery('#system-messages').find('p').last().delay(8000).slideUp();
 }
 
 function maintain_checkout() {
@@ -101,10 +104,10 @@ function maintain_checkout() {
 			type: 'POST',
 			success: function(msg) {
 				if (msg.error) {
-					alert(msg.error);
+					push_msg(msg.error);
 				} else {
 					if (msg.id != jQuery('.id').first().val()) {
-						alert('Checkout seems to have failed.');
+						push_msg('Checkout seems to have failed.');
 					}
 				}
 				if (msg.token) {
@@ -308,7 +311,7 @@ jQuery(document).ready(function($) {
 			});
 		}
 		if (!fieldset || fieldset.length < 1) {
-			alert('Error loading form');
+			push_msg('Error loading form');
 			return false;
 		}
 
@@ -378,7 +381,7 @@ jQuery(document).ready(function($) {
 		});
 
 		if (!$fields.attr('data-controller')) {
-			alert('Improper form could not be submitted. Please notify system administrator.');
+			push_msg('Improper form could not be submitted. Please notify system administrator.');
 			return;
 		}
 
@@ -418,7 +421,7 @@ jQuery(document).ready(function($) {
 		} else if ($(this).hasClass('restore')) {
 			state = 1;
 		} else {
-			alert('Error changing state of item.');
+			push_msg('Error changing state of item.');
 		}
 
 		if (fieldset_name = $(this).attr('data-fieldset')) {
@@ -430,28 +433,45 @@ jQuery(document).ready(function($) {
 			});
 		}
 
-		id_name = $(fieldset).find('.id').attr('name');
+		object = $(this).attr('data-fieldset');
 		values = $.parseJSON($(this).closest('fieldset').find('.record_values').val());
-		id = values[id_name];
 
-		url = window.juri_base + 'index.php';
+		fieldset = $(fieldset
+			.find('.parent_id').val($('.parentform .id').val()).end()
+			.html()
+		);
+
+		$.each(values, function(i, value) {
+			console.log($('.edit-form [name="'+i+'"]'));
+			fieldset.find('[name="'+i+'"]').val(value);
+		});
+		fieldset.find('.state').val(state);
+		id = fieldset.find('.id').val();
+
+		data = fieldset.find('input, textarea, select').serializeArray();
+
+		url = object + '/' + id;
+
+		format = new Object;
+		format.name = 'format';
+		format.value = 'json';
+		data.push(format);
+
+		console.log(url);
+		console.log(data);
 
 		$.ajax({
 			url: url,
 			dataType: 'json',
-			data: {
-				option: 'com_wbty_gallery',
-				task: $(this).attr('data-fieldset') + '.ajax_state',
-				id: id,
-				state_val: state
-			},
+			data: data,
 			type: 'POST',
 			context: this,
 			success: function(msg) {
 				if (msg.error) {
-					alert(msg.error);
+					push_msg(msg.error);
 				} else {
 					fieldset = $(this).closest('fieldset');
+					console.log(msg);
 					if (msg.state == 1) {
 						$(this).removeClass('btn-success').removeClass('restore').addClass('delete').addClass('btn-danger').text('Remove');
 						$('#' + $(this).attr('data-fieldset') + '-published').append(fieldset);
@@ -459,13 +479,14 @@ jQuery(document).ready(function($) {
 						$(this).addClass('btn-success').addClass('restore').removeClass('delete').removeClass('btn-danger').text('Restore');
 						$('#' + $(this).attr('data-fieldset') + '-trashed').append(fieldset);
 					}
-
+					push_msg('Item updated successfully', 'bg-success');
 				}
 				if (msg.token) {
 					window.token = msg.token;
 				}
 			},
 			error: function (x, status, error) {
+				push_msg('Error updating item');
 				console.log(status + '-' + error);
 				console.log(x);
 			}
@@ -545,7 +566,7 @@ jQuery(document).ready(function($) {
 				if (resp) {
 					window.update.remove();
 				} else {
-					alert("Error removing the item.");
+					push_msg('Error removing the item');
 				}
 			}
 		});

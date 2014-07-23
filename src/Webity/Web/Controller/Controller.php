@@ -84,6 +84,9 @@ class Controller extends AbstractController
                             'check_trashed' => false
                         )
                     );
+                    if ($field = $form->getField('state', strtolower(basename($this->directory)))) {
+                        $return['state'] = $field->__get('value');
+                    }
                 }
     			//$return['token'] = JSession::getFormToken();
     		} else {

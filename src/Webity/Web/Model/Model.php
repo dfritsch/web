@@ -111,6 +111,7 @@ class Model extends AbstractDatabaseModel
         $return = true;
         try {
             $this->data = $data;
+
             $url = $object_name . '/' . $object_id;
             //try saving it
             $return = $api->query($url, $data, array('Content-Type' => 'multipart/form-data; charset=utf-8'), 'post');
