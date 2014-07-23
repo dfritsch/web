@@ -8,7 +8,7 @@
 
 	<div class="control-group">
 		<div class="controls">
-			<input type="submit" value="Login" name="login-submit" />
+			<input type="submit" value="Login" name="login-submit" class="btn btn-primary" />
 		</div>
 	</div>
 </form>

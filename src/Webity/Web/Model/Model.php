@@ -4,13 +4,15 @@ namespace Webity\Web\Model;
 use Joomla\Model\AbstractDatabaseModel;
 use Joomla\Database\DatabaseDriver;
 use Joomla\Registry\Registry;
-use Joomla\Form\Form;
+use Webity\Web\Form\Form;
+use Joomla\Form\FormHelper;
 use Webity\Web\Application\WebApp;
 
 class Model extends AbstractDatabaseModel
 {
     protected $directory = '';
     protected $namespace = '';
+    protected $keyField = 'id';
 
     public function __construct(DatabaseDriver $db, Registry $state = null) {
         $rc = new \ReflectionClass(get_class($this));
@@ -31,9 +33,14 @@ class Model extends AbstractDatabaseModel
         $url = $object_name . '/' . $id;
 
         try {
-            $return = $api->query($url)->data;
+            $response = $api->query($url)->data;
         } catch(\InvalidArgumentException $e) {
         } catch(\RuntimeException $e) {
+        }
+
+        if ($response) {
+            // wrap this in its own name to handle the form "fields" attribute
+            $return[$object_name] = $response;
         }
 
         return $return;
@@ -64,8 +71,9 @@ class Model extends AbstractDatabaseModel
             $name = strtolower(basename($this->directory));
         }
 
+        FormHelper::addFormPath($this->directory . '/forms/');
         $form = new Form($name, $opts);
-        $form->loadFile($this->directory . '/forms/' . $name . '.xml');
+        $form->loadFile($name);
 
         if ($data) {
             $form->bind($data);
@@ -78,28 +86,34 @@ class Model extends AbstractDatabaseModel
         $app = WebApp::getInstance();
         $api = $app->getApi();
         $input = $app->input;
+        //because mimic does their naming this way
+        $object_name = strtolower(basename($this->directory));
 
         $submission = $input->post->get('jform', array(), 'ARRAY');
-        $submission = array_merge($submission, $input->files->get('jform'));
+        if ($files = $input->files->get('jform')) {
+            $submission = array_merge($submission, $files);
+        }
         $form = $this->loadForm($submission, null, array());
 
         $data = $form->processSave();
+
+        if (count($data) == 1 && isset($data->{$object_name})) {
+            $data = $data->$object_name;
+        }
 
         if ($data->image) {
             $data->image = '@' . $data->image;
         }
 
-        //because mimic does their naming this way
-        $object_name = basename($this->directory);
         $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
         $object_id = $data->$id;
 
         $return = true;
         try {
+            $this->data = $data;
             $url = $object_name . '/' . $object_id;
-
             //try saving it
-            var_dump($api->query($url, $data, array('Content-Type' => 'multipart/form-data; charset=utf-8'), 'post'));
+            $return = $api->query($url, $data, array('Content-Type' => 'multipart/form-data; charset=utf-8'), 'post');
         } catch(\InvalidArgumentException $e) {
             var_dump($e);
             $return = false;
@@ -110,6 +124,11 @@ class Model extends AbstractDatabaseModel
         if (!$return) {
             exit();
         }
+
+        if ($return && isset($return->{$this->keyField})) {
+            $return = $return->{$this->keyField};
+        }
+
         return $return;
     }
 

@@ -53,12 +53,15 @@
 	        else:
 	        ?>
 	        <div class="form-group">
-	            <?php echo str_replace('<label', '<label class="control-label"', $field->label); ?>
-	            <?php echo $field->input; ?>
+	            <?php echo str_replace('<label', '<label class="col-sm-2 control-label"', $field->label); ?>
+				<div class="col-sm-10">
+	            	<?php echo $field->input; ?>
+				</div>
 	        </div>
 	        <?php
 	        endif;
 		endforeach;
+		echo '<div class="clr"></div>';
 		echo '</div>';
 		echo '</fieldset>';
 	}

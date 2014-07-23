@@ -4,6 +4,7 @@ namespace Webity\Web\Controller;
 use Joomla\Controller\AbstractController;
 use Webity\Web\Application\WebApp;
 use Joomla\Input\Input;
+use Webity\Web\Layout\File as Layout;
 
 class Controller extends AbstractController
 {
@@ -60,12 +61,45 @@ class Controller extends AbstractController
     {
         $app = $this->getApplication();
 
-        if($this->getModel()->save()) {
-            $app->redirect($app->get('uri.base.full') . strtolower(basename($this->directory)));
+        $saved = $this->getModel()->save();
+        $format = $app->input->get('format', 'html');
+
+        if ($format == 'json') {
+            $return = array(json_encode($this->getModel()->data));
+    		if ($saved) {
+    			// require_once(JPATH_COMPONENT_ADMINISTRATOR . '/helpers/ajax.php');
+    			// $helper_name = $this->com_name . 'HelperAjax';
+    			// $helper = new $helper_name();
+    			// $form = $this->model->getForm(array(), true, 'jform', $id);
+
+    			$return['id'] = $saved;
+                if (is_scalar($saved)) {
+                    $form = $this->getModel()->getForm($saved);
+                    $layout = new Layout('SubtableHtml');
+                    $return['data'] = $layout->render(
+                        array(
+                            'link_name' => strtolower(basename($this->directory)),
+                            'key' => $saved,
+                            'link' => $form,
+                            'check_trashed' => false
+                        )
+                    );
+                }
+    			//$return['token'] = JSession::getFormToken();
+    		} else {
+    			$return['error'] = "error";
+    			//$return['token'] = JSession::getFormToken();
+    		}
+    		echo json_encode($return);
+    		exit();
         } else {
-            //go back to the same view with the data intact
-            $_SESSION['form'] = $app->input->post->get('jform', array(), 'ARRAY');
-            $app->redirect('form');
+            if($saved) {
+                $app->redirect($app->get('uri.base.full') . strtolower(basename($this->directory)));
+            } else {
+                //go back to the same view with the data intact
+                $_SESSION['form'] = $app->input->post->get('jform', array(), 'ARRAY');
+                $app->redirect('form');
+            }
         }
 
     }

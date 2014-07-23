@@ -34,7 +34,9 @@ function ajaxsave(url, data, context) {
 		context: context,
 		success: function(msg) {
 			if (msg.error) {
-				alert(msg.error);
+				$msg = '<p class="bg-danger">' + msg.error + '</p>';
+				jQuery('#system-messages').append($msg);
+				jQuery('#system-messages').find('p').last().delay(8000).slideUp();
 			} else {
 				jQuery('.subtables fieldset > div').show();
 				if (msg.id) {
@@ -64,10 +66,21 @@ function ajaxsave(url, data, context) {
 			}
 			console.log(msg);
 			jQuery(this).remove();
+
+			$msg = '<p class="bg-success">Item saved successfully</p>';
+			jQuery('#system-messages').append($msg);
+			jQuery('#system-messages').find('p').last().delay(8000).slideUp();
+
 		},
 		error: function (x, status, error) {
 			console.log(status + '-' + error);
 			console.log(x);
+
+			jQuery(this).remove();
+
+			$msg = '<p class="bg-danger">Error saving item</p>';
+			jQuery('#system-messages').append($msg)
+			jQuery('#system-messages').find('p').last().delay(8000).slideUp();
 		}
 	})
 }
@@ -104,9 +117,9 @@ function maintain_checkout() {
 			}
 		});
 	}
-	setTimeout(function() {maintain_checkout();}, 60000);
+	//setTimeout(function() {maintain_checkout();}, 60000);
 }
-setTimeout(function() {maintain_checkout();}, 30000);
+//setTimeout(function() {maintain_checkout();}, 30000);
 
 
 jQuery(document).ready(function($) {
@@ -122,30 +135,38 @@ jQuery(document).ready(function($) {
 
 	var $modify = $('<div class="modify-buttons" style="float:right;"><button class="btn btn-primary edit-modify-btn" aria-hidden="true">Modify</button></div>');
 
-	$('.sortable').sortable();
+	// $('.sortable').sortable();
 	$('.tabs').tabs();
 
-	$('body').on('click', '.btn', function(e) {
-        if (!$this.hasClass('allowDefault')) {
-            e.preventDefault();
-        }
-	});
+	// $('body').on('click', '.btn', function(e) {
+    //     if (!$(this).hasClass('allowDefault')) {
+    //         e.preventDefault();
+    //     }
+	// });
 
 	if (parseInt($('.parentform .id').val()) < 1) {
 		$('.subtables fieldset > div').hide();
 	}
 
-	$('.save-primary').click(function() {
+	$('.save-primary').click(function(e) {
+		e.preventDefault();
 		data = $(this).closest('fieldset').serializeArray();
 		token = new Object;
 		token.name = ((typeof window.token === 'undefined') ? window.token : $(this).closest('form').find('input').last().attr('name'));
 		token.value = 1;
 		data.push(token);
 
-		$(this).after('<img src="'+window.juri_root+'/media/wbty_gallery/img/load.gif" class="loading" />');
-		task = $(this).closest('fieldset').attr('data-task');
-		url = 'index.php?option=com_wbty_gallery&task='+task;
+		format = new Object;
+		format.name = 'format';
+		format.value = 'json';
+		data.push(format);
 
+		$(this).after('<img src="img/load.gif" class="loading" />');
+		controller = $(this).closest('fieldset').attr('data-controller');
+		id = $(this).closest('fieldset').find('.id').val();
+		url = controller + '/' + id;
+
+		console.log(url);
 		ajaxsave(url, data, $(this).parent().find('.loading'));
 		console.log(data);
 
@@ -271,6 +292,8 @@ jQuery(document).ready(function($) {
 	$(document).trigger('wbty_setup');
 
 	$(document).on('click', '.inline-edit-trigger', function(e) {
+		e.preventDefault();
+
 		$this = $(this);
 
 		// remove already open instances of the edit box.
@@ -319,22 +342,22 @@ jQuery(document).ready(function($) {
 		//$('.calendar').parent().find('input[type=text]').datepicker({ dateFormat: "M dd',' yy" });
 		//$('.calendar').hide();
 
-		form.find('.inline-edit-save-btn').attr('disabled', 'disabled');
+		//form.find('.inline-edit-save-btn').attr('disabled', 'disabled');
 		url = window.juri_base + 'index.php?option=com_wbty_gallery&task='+ $this.attr('data-controller') + '.edit';
 
 		if ($this.attr('data-append')) {
 			url = url + '&' + $this.attr('data-append');
 		}
 
-		$.ajax({
-			url: url,
-			type: 'GET',
-			context: form,
-			success: function(resp) {
-				$(this).find('form').append($(resp).find('.component-content form input').last());
-				$(this).find('.inline-edit-save-btn').removeAttr('disabled');
-			}
-		});
+		// $.ajax({
+		// 	url: url,
+		// 	type: 'GET',
+		// 	context: form,
+		// 	success: function(resp) {
+		// 		$(this).find('form').append($(resp).find('.component-content form input').last());
+		// 		$(this).find('.inline-edit-save-btn').removeAttr('disabled');
+		// 	}
+		// });
 
 		$('html, body').animate({
 				scrollTop: parseInt(form.offset().top) - 100
@@ -345,6 +368,8 @@ jQuery(document).ready(function($) {
 	});
 
 	$('body').on('click', '.inline-edit-save-btn', function(e) {
+		e.preventDefault();
+
 		$fields = $(this).closest('.edit-form');
 
 		// make sure to save editors
@@ -357,13 +382,15 @@ jQuery(document).ready(function($) {
 			return;
 		}
 
-		url = window.juri_base + 'index.php?option=com_wbty_gallery&task='+ $fields.attr('data-controller') + '.ajax_save';
+		controller = $(this).closest('.edit-form').attr('data-controller');
+		id = $(this).closest('.edit-form').find('.id').val();
+		url = controller + '/' + id;
 
 		if ($fields.attr('data-append')) {
 			url = url + '&' + $fields.attr('data-append');
 		}
 
-		$(this).closest('.edit-form').after($('<p style="text-align:center;" data-update="'+$(this).closest('.edit-form').attr('data-update')+'" data-fieldset="'+$(this).closest('.edit-form').attr('data-fieldset')+'"><img src="'+window.juri_root+'media/wbty_gallery/img/load.gif" /></p>'));
+		$(this).closest('.edit-form').after($('<p style="text-align:center;" data-update="'+$(this).closest('.edit-form').attr('data-update')+'" data-fieldset="'+$(this).closest('.edit-form').attr('data-fieldset')+'"><img src="img/load.gif" /></p>'));
 
 		data = $fields.closest('.edit-form').find('input, textarea, select').serializeArray();
 
@@ -371,6 +398,11 @@ jQuery(document).ready(function($) {
 		token.name = ((typeof window.token === 'undefined') ? window.token : $(this).closest('form').find('input').last().attr('name'));
 		token.value = 1;
 		data.push(token);
+
+		format = new Object;
+		format.name = 'format';
+		format.value = 'json';
+		data.push(format);
 
 		console.log(url);
 		console.log(data);
