@@ -32,15 +32,27 @@ class Model extends AbstractDatabaseModel
         $object_name = strtolower(basename($this->directory));
         $url = $object_name . '/' . $id;
 
+        $start = $app->input->get('start', 0, 'INT');
+
+        if ($start) {
+            $url .= '?start=' . $start;
+        }
         try {
-            $response = $api->query($url)->data;
+            $response = $api->query($url);
         } catch(\InvalidArgumentException $e) {
         } catch(\RuntimeException $e) {
         }
 
         if ($response) {
             // wrap this in its own name to handle the form "fields" attribute
-            $return[$object_name] = $response;
+            $return[$object_name] = $response->data;
+
+            if ($response->next) {
+                $return['more'] = true;
+            }
+            $return['start'] = $response->start;
+            $return['limit'] = $response->limit;
+            $return['base_url'] = $object_name;
         }
 
         return $return;
