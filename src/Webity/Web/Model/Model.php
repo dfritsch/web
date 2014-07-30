@@ -56,10 +56,11 @@ class Model extends AbstractDatabaseModel
             $data = (array) $this->getItems($id);
         }
 
-        if($_SESSION['form']) {
-            $data = $_SESSION['form'];
+        $obj = strtolower(basename($this->directory));
+        if($_SESSION['form'][$obj]) {
+            $data = $_SESSION['form'][$obj];
             unset($data['password']); //never let the password be passed back
-            unset($_SESSION['form']); //don't let the form session data persist
+            unset($_SESSION['form'][$obj]); //don't let the form session data persist
         }
 
         return $this->loadForm($data, $name);

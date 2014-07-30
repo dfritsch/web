@@ -100,7 +100,7 @@ class Controller extends AbstractController
                 $app->redirect($app->get('uri.base.full') . strtolower(basename($this->directory)));
             } else {
                 //go back to the same view with the data intact
-                $_SESSION['form'] = $app->input->post->get('jform', array(), 'ARRAY');
+                $_SESSION['form'][strtolower(basename($this->directory))] = $app->input->post->get('jform', array(), 'ARRAY');
                 $app->redirect('form');
             }
         }
