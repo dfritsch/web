@@ -29,8 +29,19 @@ class Model extends AbstractDatabaseModel
 
         $return = array();
 
+        //allows us to pass more get requests to the query (i'm sure there is a joomla framework way of doing this)
+        // $request = $app->get('uri');
+        // echo '<pre>';
+        // var_dump($request);
+        // exit();
+        //too lazy to actually program this well. it works. back ooff.
+        $request = $id ? '/' . $app->get('uri.route') : $app->get('uri.route');
+        
         $object_name = strtolower(basename($this->directory));
-        $url = $object_name . '/' . $id;
+        
+        $url = (count($request) > 1) ? $object_name . '/' . $id . $request : $object_name . '/' . $id;
+
+        //exit($url);
 
         try {
             $response = $api->query($url)->data;

@@ -10,6 +10,7 @@ class Controller extends AbstractController
 {
     protected $directory = '';
     protected $namespace = '';
+    protected $authorizedGroups = array();
 
     public function __construct($input = null, $app = null) {
         $rc = new \ReflectionClass(get_class($this));
@@ -137,5 +138,25 @@ class Controller extends AbstractController
         }
         $class = new $controller($input);
         return $class->execute();
+    }
+
+    //allows us to return the authorized groups for the particular component we are requesting (might get sticky and complicated cause this is an hmvc...)
+    protected function getAuthorizedGroups() {
+        return $this->authorizedGroups;
+    }
+
+    //we need to verify what kind of user it is. whether or not it has access.
+    protected function accessCheck()
+    {
+        $app = WebApp::getInstance();
+
+        $user = $app->getUser();
+
+        //so that it makes it easy to write the authorizedGroups array
+        $userGroup = str_replace(' ', '', strtolower($user->group_title));
+
+        if(!in_array($userGroup, $this->getAuthorizedGroups())) {
+            $app->redirect($app->get('uri.base.full'));
+        }
     }
 }
