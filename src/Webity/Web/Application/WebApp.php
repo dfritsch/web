@@ -381,6 +381,23 @@ class WebApp extends AbstractWebApplication
 	    	$this->raiseError($e->getMessage(), $e->getCode());
 	    }
     }
+
+    //a way to get granular control over whether or not a user can or can't do a particular task
+    public function userCan($task = '') {
+        if(!array_key_exists($task, $this->rules)) {
+            return false; //temporary. I want to be able to throw an exception or enqueue message and then return false...
+        }
+
+        $user_group = str_replace(' ', '', strtolower($this->getUser()->group_title));
+
+        foreach($this->rules[$task] as $permitted_group) {
+        	if($user_group == $permitted_group) {
+        		return true;
+        	}
+        }
+
+        return false;
+    }
 }
 
 // a function that I stole from php.net, to provide support back to php 5.3.10 (like Joomla)
