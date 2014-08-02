@@ -385,12 +385,13 @@ class WebApp extends AbstractWebApplication
     //a way to get granular control over whether or not a user can or can't do a particular task
     public function userCan($task = '') {
         if(!array_key_exists($task, $this->rules)) {
-            return false; //temporary. I want to be able to throw an exception or enqueue message and then return false...
+            return false;
         }
 
         $user_group = str_replace(' ', '', strtolower($this->getUser()->group_title));
+        $permitted_groups = explode('|', $this->rules[$task]);
 
-        foreach($this->rules[$task] as $permitted_group) {
+        foreach($permitted_groups as $permitted_group) {
         	if($user_group == $permitted_group) {
         		return true;
         	}
