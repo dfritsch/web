@@ -399,6 +399,15 @@ class WebApp extends AbstractWebApplication
 
         return false;
     }
+
+    //used so if there is a rule that may be applicable to an entire component we can use it there
+    public function getRules($task = '') {
+    	if(!$task) {
+    		return $this->rules;
+    	} else {
+    		return $this->rules[$task];
+    	}
+    }
 }
 
 // a function that I stole from php.net, to provide support back to php 5.3.10 (like Joomla)
