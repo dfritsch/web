@@ -36,15 +36,14 @@ class Model extends AbstractDatabaseModel
         // exit();
         //too lazy to actually program this well. it works. back ooff.
         $request = $id ? '/' . $app->get('uri.route') : $app->get('uri.route');
-        
-        $object_name = strtolower(basename($this->directory));
-        
+
+        $object_name = basename($this->directory);
+
         $url = (count($request) > 1) ? $object_name . '/' . $id . $request : $object_name . '/' . $id;
 
-        //exit($url);
-
         try {
-            $response = $api->query($url)->data;
+            $response = $api->query($url);
+            $response = $response->data;
         } catch(\InvalidArgumentException $e) {
         } catch(\RuntimeException $e) {
         }
