@@ -118,7 +118,7 @@ class Model extends AbstractDatabaseModel
         }
 
         $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
-        $object_id = $data->$id;
+        $object_id = $data->id;
 
         $return = true;
         try {
