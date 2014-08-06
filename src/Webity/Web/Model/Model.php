@@ -34,14 +34,15 @@ class Model extends AbstractDatabaseModel
         // echo '<pre>';
         // var_dump($request);
         // exit();
+        $request = substr($app->get('uri.route'), strpos( $app->get('uri.route'), '?' ) );
         //too lazy to actually program this well. it works. back ooff.
-        $request = $id ? '/' . $app->get('uri.route') : $app->get('uri.route');
-        
+        $request = $id ? '/' . $request : $request;
+
         $object_name = strtolower(basename($this->directory));
         
-        $url = (count($request) > 1) ? $object_name . '/' . $id . $request : $object_name . '/' . $id;
+        $url = (strlen($request) > 1) ? $object_name . '/' . $id . $request : $object_name . '/' . $id;
 
-        //exit($url);
+        // exit($url);
 
         try {
             $response = $api->query($url)->data;
@@ -118,7 +119,7 @@ class Model extends AbstractDatabaseModel
         }
 
         $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
-        $object_id = $data->id;
+        $object_id = $data->$id;
 
         $return = true;
         try {
