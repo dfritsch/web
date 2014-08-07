@@ -27,25 +27,25 @@ class Model extends AbstractDatabaseModel
         $app = WebApp::getInstance();
         $api = $app->getApi();
 
-        $return = array();
-
         //allows us to pass more get requests to the query (i'm sure there is a joomla framework way of doing this)
         // $request = $app->get('uri');
         // echo '<pre>';
         // var_dump($request);
         // exit();
-        $request = substr($app->get('uri.route'), strpos( $app->get('uri.route'), '?' ) );
         //too lazy to actually program this well. it works. back ooff.
-        $request = $id ? '/' . $request : $request;
+        $route = $app->get('uri.route');
+        $strpos = strpos($route, '?');
+        $route = ($strpos !== false) ? substr($route, $strpos) : '';
 
-        $object_name = strtolower(basename($this->directory));
-        
+        $request = $id ? '/' . $route : $route;
+
+        $object_name = basename($this->directory);
+
         $url = (strlen($request) > 1) ? $object_name . '/' . $id . $request : $object_name . '/' . $id;
 
-        // exit($url);
-
         try {
-            $response = $api->query($url)->data;
+            $response = $api->query($url);
+            $response = $response->data;
         } catch(\InvalidArgumentException $e) {
         } catch(\RuntimeException $e) {
         }
@@ -100,7 +100,7 @@ class Model extends AbstractDatabaseModel
         $api = $app->getApi();
         $input = $app->input;
         //because mimic does their naming this way
-        $object_name = strtolower(basename($this->directory));
+        $object_name = basename($this->directory);
 
         $submission = $input->post->get('jform', array(), 'ARRAY');
         $form = $this->loadForm($submission, null, array());
@@ -118,14 +118,22 @@ class Model extends AbstractDatabaseModel
             $data->image = '@' . $data->image;
         }
 
-        $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
-        $object_id = $data->$id;
+        if ($data->id) {
+            $object_id = $data->id;
+        } else {
+            $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
+            $object_id = $data->$id;
+        }
+
+        if (!$object_id) {
+            $object_id = $app->input->get('id', '');
+        }
 
         $return = true;
         try {
             $this->data = $data;
-
             $url = $object_name . '/' . $object_id;
+
             //try saving it
             $return = $api->query($url, $data, array('Content-Type' => 'multipart/form-data; charset=utf-8'), 'post');
         } catch(\InvalidArgumentException $e) {
