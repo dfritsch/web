@@ -98,7 +98,7 @@ class Model extends AbstractDatabaseModel
         $api = $app->getApi();
         $input = $app->input;
         //because mimic does their naming this way
-        $object_name = strtolower(basename($this->directory));
+        $object_name = basename($this->directory);
 
         $submission = $input->post->get('jform', array(), 'ARRAY');
         $form = $this->loadForm($submission, null, array());
@@ -116,14 +116,22 @@ class Model extends AbstractDatabaseModel
             $data->image = '@' . $data->image;
         }
 
-        $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
-        $object_id = $data->$id;
+        if ($data->id) {
+            $object_id = $data->id;
+        } else {
+            $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
+            $object_id = $data->$id;
+        }
+
+        if (!$object_id) {
+            $object_id = $app->input->get('id', '');
+        }
 
         $return = true;
         try {
             $this->data = $data;
-
             $url = $object_name . '/' . $object_id;
+
             //try saving it
             $return = $api->query($url, $data, array('Content-Type' => 'multipart/form-data; charset=utf-8'), 'post');
         } catch(\InvalidArgumentException $e) {

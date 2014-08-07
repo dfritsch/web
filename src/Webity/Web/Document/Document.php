@@ -1146,7 +1146,8 @@ class Document
 		$base = $this->getBase();
 		if (!empty($base))
 		{
-			$buffer .= $tab . '<base href="' . $this->getBase() . '" />' . $lnEnd;
+			// Disabled to be called directly in the template
+			//$buffer .= $tab . '<base href="' . $this->getBase() . '" />' . $lnEnd;
 		}
 
 		// Generate META tags (needs to happen as early as possible in the head)
