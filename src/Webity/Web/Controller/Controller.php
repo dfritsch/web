@@ -140,6 +140,18 @@ class Controller extends AbstractController
         return $class->execute();
     }
 
+    protected function dispatchModel($model, $method, $arguments = array()) {
+        $model .= '\\Model';
+        if( class_exists($model) ) {
+
+            $class = new $model($this->getApplication()->getDbo());
+            if( method_exists($class, $method) ) {
+                return call_user_func_array(array($class, $method), $arguments);
+            }
+        }
+        return false;
+    }
+
     //allows us to return the authorized groups for the particular component we are requesting (might get sticky and complicated cause this is an hmvc...)
     protected function getAuthorizedGroups() {
         return $this->authorizedGroups;
