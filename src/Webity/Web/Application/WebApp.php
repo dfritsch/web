@@ -408,6 +408,36 @@ class WebApp extends AbstractWebApplication
     		return $this->rules[$task];
     	}
     }
+
+    //very basic way of handling passing messages along (type is based on classes defined in bootstrap 3)
+    public function enqueueMessage($message, $type = 'success') {
+    	// For empty queue, if messages exists in the session, enqueue them first.
+        
+    	$_SESSION['application.queue'] = array('message' => $message,
+    										   'type' => strtolower($type));
+        // if (!count($this->messageQueue))
+        // {
+        //     $sessionQueue = $_SESSION['application.queue'];
+ 
+        //     if (count($sessionQueue))
+        //     {
+        //         $this->messageQueue = $sessionQueue;
+        //         unset($_SESSION['application.queue']);
+        //     }
+        // }
+ 
+        // // Enqueue the message.
+        // $this->messageQueue[] = array('message' => $msg, 'type' => strtolower($type));
+    }
+
+	//a very basic way of getting the message
+    public function getMessageQueue() {
+		// For empty queue, if messages exists in the session, enqueue them.
+        $messageQueue = $_SESSION['application.queue'];
+        unset($_SESSION['application.queue']);
+ 
+        return $messageQueue;
+    }
 }
 
 // a function that I stole from php.net, to provide support back to php 5.3.10 (like Joomla)
