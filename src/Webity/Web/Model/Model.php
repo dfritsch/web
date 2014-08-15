@@ -68,6 +68,8 @@ class Model extends AbstractDatabaseModel
             $data = (array) $this->getItems($id);
         }
 
+        // var_dump($data);
+
         $obj = strtolower(basename($this->directory));
         if($_SESSION['form'][$obj]) {
             $data = $_SESSION['form'][$obj];
@@ -109,6 +111,9 @@ class Model extends AbstractDatabaseModel
         }
 
         $data = $form->processSave();
+        // var_dump($submission);
+        // var_dump($data);
+        // exit();
 
         if (count($data) == 1 && isset($data->{$object_name})) {
             $data = $data->$object_name;
@@ -125,6 +130,11 @@ class Model extends AbstractDatabaseModel
             $object_id = $data->$id;
         }
 
+        //allows us to override the object that get's requested if passed from the form
+        if($data->object_name) {
+            $object_name = $data->object_name;
+        }
+
         if (!$object_id) {
             $object_id = $app->input->get('id', '');
         }
@@ -133,19 +143,24 @@ class Model extends AbstractDatabaseModel
         try {
             $this->data = $data;
             $url = $object_name . '/' . $object_id;
+            // var_dump($data);
+            // exit();
 
             //try saving it
             $return = $api->query($url, $data, array('Content-Type' => 'multipart/form-data; charset=utf-8'), 'post');
+
         } catch(\InvalidArgumentException $e) {
-            var_dump($e);
+            $app->enqueueMessage($e->getMessage());
+            // var_dump($e);
             $return = false;
         } catch(\RuntimeException $e) {
-            var_dump($e);
+            $app->enqueueMessage($e->getMessage());
+            // var_dump($e);
             $return = false;
         }
-        if (!$return) {
-            exit();
-        }
+        
+        // var_dump($return);
+        // exit();
 
         if ($return && isset($return->{$this->keyField})) {
             $return = $return->{$this->keyField};
