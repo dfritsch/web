@@ -34,7 +34,7 @@ function ajaxsave(url, data, context) {
 		context: context,
 		success: function(msg) {
 			if (msg.error) {
-				push_msg(msg.error);
+				push_msg(msg.error + ': ' + msg.message);
 			} else {
 				jQuery('.subtables fieldset > div').show();
 				if (msg.id) {
@@ -65,7 +65,9 @@ function ajaxsave(url, data, context) {
 			console.log(msg);
 			jQuery(this).remove();
 
-			push_msg('Item saved successfully', 'bg-success');
+			if (!msg.error) {
+				push_msg('Item saved successfully', 'bg-success');
+			}
 
 		},
 		error: function (x, status, error) {
@@ -397,10 +399,10 @@ jQuery(document).ready(function($) {
 
 		data = $fields.closest('.edit-form').find('input, textarea, select').serializeArray();
 
-		token = new Object;
-		token.name = ((typeof window.token === 'undefined') ? window.token : $(this).closest('form').find('input').last().attr('name'));
-		token.value = 1;
-		data.push(token);
+		// token = new Object;
+		// token.name = ((typeof window.token === 'undefined') ? window.token : $(this).closest('form').find('input').last().attr('name'));
+		// token.value = 1;
+		// data.push(token);
 
 		format = new Object;
 		format.name = 'format';

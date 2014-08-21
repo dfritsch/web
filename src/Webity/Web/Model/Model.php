@@ -103,6 +103,7 @@ class Model extends AbstractDatabaseModel
         $object_name = strtolower(basename($this->directory));
 
         $submission = $input->post->get('jform', array(), 'ARRAY');
+
         $form = $this->loadForm($submission, null, array());
         if ($files = $input->files->get('jform')) {
             $form->bind($files);
@@ -118,6 +119,10 @@ class Model extends AbstractDatabaseModel
             $data->image = '@' . $data->image;
         }
 
+        if ($data->video) {
+            $data->video = '@' . $data->video;
+        }
+
         $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
         $object_id = $data->$id;
 
@@ -126,6 +131,7 @@ class Model extends AbstractDatabaseModel
             $this->data = $data;
 
             $url = $object_name . '/' . $object_id;
+
             //try saving it
             $return = $api->query($url, $data, array('Content-Type' => 'multipart/form-data; charset=utf-8'), 'post');
         } catch(\InvalidArgumentException $e) {
