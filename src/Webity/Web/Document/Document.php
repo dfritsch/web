@@ -1126,7 +1126,7 @@ class Document
 		}
 	}
 
-	public function renderHeader() {
+	public function renderMeta() {
 		$this->language = $this->getLanguage();
 		// COPY & PASTE: The following code is from Joomla CMS, libraries/joomla/document/html/render/head.php
 
@@ -1178,6 +1178,62 @@ class Document
 		{
 			$buffer .= $tab . '<meta name="generator" content="' . htmlspecialchars($generator) . '" />' . $lnEnd;
 		}
+
+		return $buffer;
+	}
+
+	public function renderHeader() {
+		$this->language = $this->getLanguage();
+		// COPY & PASTE: The following code is from Joomla CMS, libraries/joomla/document/html/render/head.php
+
+		// Get line endings
+		$lnEnd = $this->_getLineEnd();
+		$tab = $this->_getTab();
+		$tagEnd = ' />';
+		$buffer = '';
+
+		// Generate charset when using HTML5 (should happen first)
+		// if ($this->isHtml5())
+		// {
+		// 	$buffer .= $tab . '<meta charset="' . $this->getCharset() . '" />' . $lnEnd;
+		// }
+
+		// // Generate base tag (need to happen early)
+		// $base = $this->getBase();
+		// if (!empty($base))
+		// {
+		// 	$buffer .= $tab . '<base href="' . $this->getBase() . '" />' . $lnEnd;
+		// }
+
+		// // Generate META tags (needs to happen as early as possible in the head)
+		// foreach ($this->_metaTags as $type => $tag)
+		// {
+		// 	foreach ($tag as $name => $content)
+		// 	{
+		// 		if ($type == 'http-equiv' && !($this->isHtml5() && $name == 'content-type'))
+		// 		{
+		// 			$buffer .= $tab . '<meta http-equiv="' . $name . '" content="' . htmlspecialchars($content) . '" />' . $lnEnd;
+		// 		}
+		// 		elseif ($type == 'standard' && !empty($content))
+		// 		{
+		// 			$buffer .= $tab . '<meta name="' . $name . '" content="' . htmlspecialchars($content) . '" />' . $lnEnd;
+		// 		}
+		// 	}
+		// }
+
+		// // Don't add empty descriptions
+		// $documentDescription = $this->getDescription();
+		// if ($documentDescription)
+		// {
+		// 	$buffer .= $tab . '<meta name="description" content="' . htmlspecialchars($documentDescription) . '" />' . $lnEnd;
+		// }
+
+		// // Don't add empty generators
+		// $generator = $this->getGenerator();
+		// if ($generator)
+		// {
+		// 	$buffer .= $tab . '<meta name="generator" content="' . htmlspecialchars($generator) . '" />' . $lnEnd;
+		// }
 
 		$buffer .= $tab . '<title>' . htmlspecialchars($this->getTitle(), ENT_COMPAT, 'UTF-8') . '</title>' . $lnEnd;
 
