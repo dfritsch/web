@@ -69,7 +69,7 @@ class Model extends AbstractDatabaseModel
         return $this->getItems($id);
     }
 
-    public function getForm($id = null, $data = array(), $name = null) {
+    public function getForm($id = null, $data = array(), $name = null, $opts = array('control' => 'jform')) {
         if (!$data) {
             $data = (array) $this->getItems($id);
         }
@@ -81,10 +81,10 @@ class Model extends AbstractDatabaseModel
             unset($_SESSION['form'][$obj]); //don't let the form session data persist
         }
 
-        return $this->loadForm($data, $name);
+        return $this->loadForm($data, $name, $opts);
     }
 
-    protected function loadForm($data = array(), $name = null, $opts = array('control' => 'jform')) {
+    protected function loadForm($data = array(), $name = null, $opts) {
         //so we don't HAVE to pass the name of the form
         if(!$name) {
             $name = strtolower(basename($this->directory));
