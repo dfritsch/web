@@ -33,10 +33,16 @@ class Model extends AbstractDatabaseModel
         $url = $object_name . '/' . $id;
 
         $start = $app->input->get('start', 0, 'INT');
+        $search = $app->input->get('search', null, 'STRING');
 
         if ($start) {
             $url .= '?start=' . $start;
         }
+
+        if($search) {
+            $url .= $start ? '&search=' . $search : '?search=' . $search;
+        }
+
         try {
             $response = $api->query($url);
         } catch(\InvalidArgumentException $e) {
