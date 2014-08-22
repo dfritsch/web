@@ -84,7 +84,7 @@ class Model extends AbstractDatabaseModel
         return $this->loadForm($data, $name, $opts);
     }
 
-    protected function loadForm($data = array(), $name = null, $opts) {
+    protected function loadForm($data = array(), $name = null, $opts = array('control' => 'jform')) {
         //so we don't HAVE to pass the name of the form
         if(!$name) {
             $name = strtolower(basename($this->directory));
