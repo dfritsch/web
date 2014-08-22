@@ -16,7 +16,7 @@
 
 						<div class="control-group">
 							<div class="controls">
-								<input type="submit" value="save" name="deck-submit" class="btn btn-primary" />
+								<input type="submit" value="Login" name="deck-submit" class="btn btn-primary" />
 							</div>
 						</div>
 					</div>
