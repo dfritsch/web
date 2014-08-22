@@ -141,6 +141,11 @@ class Model extends AbstractDatabaseModel
             $data->video = '@' . $data->video;
         }
 
+        //we need to attach the extra acting_as parameter if the user is an admin so the api can process it for post requests as well
+        if($app->getUser()->admin) {
+            $data->acting_as = $app->getUser()->acting_as;
+        }
+
         $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
         $object_id = $data->$id;
 
