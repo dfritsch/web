@@ -140,6 +140,7 @@ jQuery(document).ready(function($) {
 
 	// $('.sortable').sortable();
 	$('.tabs').tabs();
+	$('.datepicker').datepicker({ dateFormat: "M dd',' yy" });
 
 	// $('body').on('click', '.btn', function(e) {
     //     if (!$(this).hasClass('allowDefault')) {
@@ -289,6 +290,7 @@ jQuery(document).ready(function($) {
 		$('.select2-container').remove();
 		//$('select').select2({width: '80%'});
 
+		$('.datepicker').datepicker({ dateFormat: "M dd',' yy" });
 		//$('.calendar').parent().find('input[type=text]').datepicker({ dateFormat: "M dd',' yy" });
 		//$('.calendar').hide();
 	});

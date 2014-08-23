@@ -68,7 +68,7 @@ class Model extends AbstractDatabaseModel
             $data = (array) $this->getItems($id);
         }
 
-        // var_dump($data);
+        //var_dump($data);
 
         $obj = strtolower(basename($this->directory));
         if($_SESSION['form'][$obj]) {
@@ -143,6 +143,7 @@ class Model extends AbstractDatabaseModel
         try {
             $this->data = $data;
             $url = $object_name . '/' . $object_id;
+            // echo $url;
             // var_dump($data);
             // exit();
 
@@ -158,7 +159,7 @@ class Model extends AbstractDatabaseModel
             // var_dump($e);
             $return = false;
         }
-        
+
         // var_dump($return);
         // exit();
 
