@@ -115,12 +115,23 @@ class Model extends AbstractDatabaseModel
         // var_dump($data);
         // exit();
 
-        if (count($data) == 1 && isset($data->{$object_name})) {
-            $data = $data->$object_name;
+        // append an '@' for files before they get shipped to the API
+        foreach ($form->getFieldsets() as $fieldset) {
+            foreach ($form->getFieldset($fieldset->name) as $field) {
+                if ($field->type == 'File') {
+                    if ($field->group) {
+                        if ($data->{$field->group}->{$field->fieldname})
+                            $data->{$field->group}->{$field->fieldname} = '@' . $data->{$field->group}->{$field->fieldname};
+                    } else {
+                        if ($data->{$field->fieldname})
+                            $data->{$field->fieldname} = '@' . $data->{$field->fieldname};
+                    }
+                }
+            }
         }
 
-        if ($data->image) {
-            $data->image = '@' . $data->image;
+        if (count($data) == 1 && isset($data->{$object_name})) {
+            $data = $data->$object_name;
         }
 
         if ($data->id) {

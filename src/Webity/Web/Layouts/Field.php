@@ -19,8 +19,8 @@ elseif (strtolower($field->type) == 'editor'):
 else:
 ?>
 <div class="form-group">
-    <?php echo str_replace('<label', '<label class="col-sm-2 control-label"', $field->label); ?>
-    <div class="col-sm-10">
+    <?php echo str_replace('<label', '<label class="col-sm-5 control-label"', $field->label); ?>
+    <div class="col-sm-7">
         <?php echo $field->input; ?>
     </div>
 </div>
