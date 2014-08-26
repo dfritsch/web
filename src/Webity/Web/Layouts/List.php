@@ -1,4 +1,4 @@
-<table class="table table-striped">
+<table class="table">
     <tr>
         <?php foreach ($displayData['header'] as $key=>$val) : ?>
             <th><?= $val; ?></th>
