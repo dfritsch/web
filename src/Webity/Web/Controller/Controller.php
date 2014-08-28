@@ -10,7 +10,7 @@ class Controller extends AbstractController
 {
     protected $directory = '';
     protected $namespace = '';
-    public $isPrivate = true;
+    protected $isPrivate = true;
     protected $authorizedGroups = array();
 
     public function __construct($input = null, $app = null) {
@@ -171,5 +171,9 @@ class Controller extends AbstractController
         if(!in_array($userGroup, $this->getAuthorizedGroups())) {
             $app->redirect($app->get('uri.base.full'));
         }
+    }
+
+    public function checkPrivate() {
+        return $this->isPrivate;
     }
 }
