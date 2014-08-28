@@ -10,7 +10,7 @@ class Controller extends AbstractController
 {
     protected $directory = '';
     protected $namespace = '';
-    public $isPrivate = false;
+    public $isPrivate = true;
     protected $authorizedGroups = array();
 
     public function __construct($input = null, $app = null) {
