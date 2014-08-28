@@ -374,7 +374,6 @@ class WebApp extends AbstractWebApplication
     public function run()
     {
     	try {
-	    	$this->authenticate();
 	    	$this->route();
 	    	$this->execute();
 	    } catch (\Exception $e) {
