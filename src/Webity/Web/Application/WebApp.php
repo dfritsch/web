@@ -374,68 +374,12 @@ class WebApp extends AbstractWebApplication
     public function run()
     {
     	try {
+	    	$this->authenticate();
 	    	$this->route();
 	    	$this->execute();
 	    } catch (\Exception $e) {
 	    	$this->raiseError($e->getMessage(), $e->getCode());
 	    }
-    }
-
-    //a way to get granular control over whether or not a user can or can't do a particular task
-    public function userCan($task = '') {
-        if(!array_key_exists($task, $this->rules)) {
-            return false;
-        }
-
-        $user_group = str_replace(' ', '', strtolower($this->getUser()->group_title));
-        $permitted_groups = explode('|', $this->rules[$task]);
-
-        foreach($permitted_groups as $permitted_group) {
-        	if($user_group == $permitted_group) {
-        		return true;
-        	}
-        }
-
-        return false;
-    }
-
-    //used so if there is a rule that may be applicable to an entire component we can use it there
-    public function getRules($task = '') {
-    	if(!$task) {
-    		return $this->rules;
-    	} else {
-    		return $this->rules[$task];
-    	}
-    }
-
-    //very basic way of handling passing messages along (type is based on classes defined in bootstrap 3)
-    public function enqueueMessage($message, $type = 'success') {
-    	// For empty queue, if messages exists in the session, enqueue them first.
-        
-    	$_SESSION['application.queue'] = array('message' => $message,
-    										   'type' => strtolower($type));
-        // if (!count($this->messageQueue))
-        // {
-        //     $sessionQueue = $_SESSION['application.queue'];
- 
-        //     if (count($sessionQueue))
-        //     {
-        //         $this->messageQueue = $sessionQueue;
-        //         unset($_SESSION['application.queue']);
-        //     }
-        // }
- 
-        // // Enqueue the message.
-        // $this->messageQueue[] = array('message' => $msg, 'type' => strtolower($type));
-    }
-
-	//a very basic way of getting the message
-    public function getMessageQueue() {
-		// For empty queue, if messages exists in the session, enqueue them.
-        $messageQueue = $_SESSION['application.queue'];
-        unset($_SESSION['application.queue']);
- 
-        return $messageQueue;
     }
 }
 
