@@ -78,7 +78,7 @@ class Controller extends AbstractController
                     $layout = new Layout('SubtableHtml');
                     $return['data'] = $layout->render(
                         array(
-                            'link_name' => strtolower(basename($this->directory)),
+                            'link_name' => basename($this->directory),
                             'key' => $saved,
                             'link' => $form,
                             'check_trashed' => false
