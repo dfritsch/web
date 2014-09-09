@@ -43,18 +43,6 @@ class Model extends AbstractDatabaseModel
             $url .= $start ? '&search=' . $search : '?search=' . $search;
         }
 
-        //only bother doing this extra stuff if the user is an admin
-        if($app->getUser()->admin) {
-            $acting_as = $app->input->get('acting_as', null, 'STRING');
-            if($acting_as) {
-                $url .= ($start || $search) ? '&acting_as=' . (int)$acting_as : '?acting_as=' . (int)$acting_as;
-                //we also need to set the current users session
-                $_SESSION['user']->acting_as = (int)$acting_as;
-            } else { //always do this
-                $url .= (strpos($url, '?') !== FALSE) ? '&acting_as=' . (int)$_SESSION['user']->acting_as : '?acting_as=' . (int)$_SESSION['user']->acting_as;
-            }
-        }
-
         try {
             $response = $api->query($url);
         } catch(\InvalidArgumentException $e) {
