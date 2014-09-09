@@ -109,6 +109,24 @@ class Controller extends AbstractController
 
     }
 
+    public function remove()
+    {
+        $app = $this->getApplication();
+        $model = $this->getModel();
+        $model->alterState($app->input->get('id', 0, 'INT'), -2);
+
+        $app->redirect($app->get('uri.base.full') . strtolower(basename($this->directory)));
+    }
+
+    public function restore()
+    {
+        $app = $this->getApplication();
+        $model = $this->getModel();
+        $model->alterState($app->input->get('id', 0, 'INT'), 1);
+
+        $app->redirect($app->get('uri.base.full') . strtolower(basename($this->directory)));
+    }
+
     protected function getModel() {
         if (!file_exists($this->directory . '/Model.php')) {
             return false;
