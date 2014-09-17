@@ -46,8 +46,10 @@ class Model extends AbstractDatabaseModel
         try {
             $response = $api->query($url);
             $response = $response->data;
-        } catch(\InvalidArgumentException $e) {
-        } catch(\RuntimeException $e) {
+        } catch(\Exception $e) {
+            if ($app->get('debug')) {
+                $app->enqueueMessage($e->getMessage(), 'danger');
+            }
         }
 
         if ($response) {
@@ -158,7 +160,7 @@ class Model extends AbstractDatabaseModel
             // var_dump($e);
             $return = false;
         }
-        
+
         // var_dump($return);
         // exit();
 

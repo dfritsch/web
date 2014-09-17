@@ -45,6 +45,10 @@ class View extends AbstractHtmlView
 			}
 		}
 
+		if (!$this->getPath($this->getLayout())) {
+			$this->layout = 'default';
+		}
+
 		//probably will need to check if the method exists...
 		$getMethod .= ($this->layout != 'default') ? "get" . ucwords($this->layout) : "getItems";
 
