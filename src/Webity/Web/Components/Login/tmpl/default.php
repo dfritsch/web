@@ -18,7 +18,7 @@
 
 					<div class="control-group submit-group">
 						<div class="controls">
-							<button type="submit" value="save" name="submit" class="btn btn-danger">Login</button>
+							<button type="submit" value="save" name="submit" class="btn btn-warning">Login</button>
 						</div>
 					</div>
 				</div>
