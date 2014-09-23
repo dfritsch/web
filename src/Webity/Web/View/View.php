@@ -45,16 +45,20 @@ class View extends AbstractHtmlView
 			}
 		}
 
+		if (!$this->getPath($this->getLayout())) {
+			$this->layout = 'default';
+		}
+
 		//probably will need to check if the method exists...
 		$getMethod .= ($this->layout != 'default') ? "get" . ucwords($this->layout) : "getItems";
 
-		if(method_exists($this->model, $getMethod)) {
-
-			$this->data = $this->model->$getMethod($input->get('id'));
-
-		} else {
-			//throw an error here? maybe just do nothing instead?
-			$this->data = array();
+		if (!$this->data) {
+			if(method_exists($this->model, $getMethod)) {
+				$this->data = $this->model->$getMethod($input->get('id'));
+			} else {
+				//throw an error here? maybe just do nothing instead?
+				$this->data = array();
+			}
 		}
 
 		return parent::render();

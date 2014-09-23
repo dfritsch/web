@@ -44,10 +44,34 @@ class Model extends AbstractDatabaseModel
         $url = (strlen($request) > 1) ? $object_name . '/' . $id . $request : $object_name . '/' . $id;
 
         try {
-            $response = $api->query($url);
-            $response = $response->data;
-        } catch(\InvalidArgumentException $e) {
-        } catch(\RuntimeException $e) {
+            $response = array();
+            $i = 0;
+            do {
+                $resp = $api->query($url);
+                
+                if (is_array($resp->data)) {
+                    $response = array_merge($response, $resp->data);
+                } elseif (is_object($resp->data)) {
+                    $response = $resp->data;
+                    break;
+                }
+
+                if (isset($resp->next)) {
+                    $url = $resp->next;
+                } else {
+                    $url = false;
+                }
+
+                // TODO: Add true pagination...
+                $i++;
+                if ($i > 25) {
+                    break;
+                }
+            } while ($url);
+        } catch(\Exception $e) {
+            if ($app->get('debug')) {
+                $app->enqueueMessage($e->getMessage(), 'danger');
+            }
         }
 
         if ($response) {
@@ -158,7 +182,7 @@ class Model extends AbstractDatabaseModel
             // var_dump($e);
             $return = false;
         }
-        
+
         // var_dump($return);
         // exit();
 
