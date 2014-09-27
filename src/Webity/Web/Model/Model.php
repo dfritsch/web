@@ -13,6 +13,7 @@ class Model extends AbstractDatabaseModel
     protected $directory = '';
     protected $namespace = '';
     protected $keyField = 'id';
+    protected $items = [];
 
     public function __construct(DatabaseDriver $db, Registry $state = null) {
         $rc = new \ReflectionClass(get_class($this));
@@ -26,6 +27,10 @@ class Model extends AbstractDatabaseModel
     public function getItems($id = null) {
         $app = WebApp::getInstance();
         $api = $app->getApi();
+
+        if ($this->items && !$id) {
+            return $this->items;
+        }
 
         //allows us to pass more get requests to the query (i'm sure there is a joomla framework way of doing this)
         // $request = $app->get('uri');
@@ -48,7 +53,7 @@ class Model extends AbstractDatabaseModel
             $i = 0;
             do {
                 $resp = $api->query($url);
-                
+
                 if (is_array($resp->data)) {
                     $response = array_merge($response, $resp->data);
                 } elseif (is_object($resp->data)) {
@@ -77,6 +82,10 @@ class Model extends AbstractDatabaseModel
         if ($response) {
             // wrap this in its own name to handle the form "fields" attribute
             $return[$object_name] = $response;
+        }
+
+        if (!$id) {
+            $this->items = $return;
         }
 
         return $return;

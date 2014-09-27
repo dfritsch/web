@@ -110,13 +110,17 @@ class Controller extends AbstractController
     }
 
     protected function getModel() {
+        if ($this->model) {
+            return $this->model;
+        }
+
         if (!file_exists($this->directory . '/Model.php')) {
             return false;
         }
 
         $class = $this->namespace . '\\Model';
 
-        return new $class($this->getApplication()->getDbo());
+        return $this->model = new $class($this->getApplication()->getDbo());
     }
 
     protected function getView() {
