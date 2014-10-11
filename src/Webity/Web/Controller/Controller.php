@@ -73,13 +73,13 @@ class Controller extends AbstractController
     			// $helper = new $helper_name();
     			// $form = $this->model->getForm(array(), true, 'jform', $id);
 
-    			$return['id'] = $saved;
                 if (is_scalar($saved)) {
+                    $return['id'] = $saved;
                     $form = $this->getModel()->getForm($saved);
                     $layout = new Layout('SubtableHtml');
                     $return['data'] = $layout->render(
                         array(
-                            'link_name' => strtolower(basename($this->directory)),
+                            'link_name' => basename($this->directory),
                             'key' => $saved,
                             'link' => $form,
                             'check_trashed' => false
@@ -88,6 +88,8 @@ class Controller extends AbstractController
                     if ($field = $form->getField('state', strtolower(basename($this->directory)))) {
                         $return['state'] = $field->__get('value');
                     }
+                } else {
+                    $return = $saved;
                 }
     			//$return['token'] = JSession::getFormToken();
     		} else {
@@ -106,6 +108,24 @@ class Controller extends AbstractController
             }
         }
 
+    }
+
+    public function remove()
+    {
+        $app = $this->getApplication();
+        $model = $this->getModel();
+        $model->alterState($app->input->get('id', 0, 'INT'), -2);
+
+        $app->redirect($app->get('uri.base.full') . strtolower(basename($this->directory)));
+    }
+
+    public function restore()
+    {
+        $app = $this->getApplication();
+        $model = $this->getModel();
+        $model->alterState($app->input->get('id', 0, 'INT'), 1);
+
+        $app->redirect($app->get('uri.base.full') . strtolower(basename($this->directory)));
     }
 
     protected function getModel() {

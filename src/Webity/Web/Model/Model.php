@@ -43,16 +43,33 @@ class Model extends AbstractDatabaseModel
 
         $url = (strlen($request) > 1) ? $object_name . '/' . $id . $request : $object_name . '/' . $id;
 
+        $start = $app->input->get('start', 0, 'INT');
+        $search = $app->input->get('search', null, 'STRING');
+
+        if ($start) {
+            $url .= '?start=' . $start;
+        }
+
+        if($search) {
+            $url .= $start ? '&search=' . $search : '?search=' . $search;
+        }
+
         try {
             $response = $api->query($url);
-            $response = $response->data;
         } catch(\InvalidArgumentException $e) {
         } catch(\RuntimeException $e) {
         }
 
         if ($response) {
             // wrap this in its own name to handle the form "fields" attribute
-            $return[$object_name] = $response;
+            $return[$object_name] = $response->data;
+
+            if ($response->next) {
+                $return['more'] = true;
+            }
+            $return['start'] = $response->start;
+            $return['limit'] = $response->limit;
+            $return['base_url'] = $object_name;
         }
 
         return $return;
@@ -63,7 +80,7 @@ class Model extends AbstractDatabaseModel
         return $this->getItems($id);
     }
 
-    public function getForm($id = null, $data = array(), $name = null) {
+    public function getForm($id = null, $data = array(), $name = null, $opts = array('control' => 'jform')) {
         if (!$data) {
             $data = (array) $this->getItems($id);
         }
@@ -77,7 +94,7 @@ class Model extends AbstractDatabaseModel
             unset($_SESSION['form'][$obj]); //don't let the form session data persist
         }
 
-        return $this->loadForm($data, $name);
+        return $this->loadForm($data, $name, $opts);
     }
 
     protected function loadForm($data = array(), $name = null, $opts = array('control' => 'jform')) {
@@ -105,6 +122,7 @@ class Model extends AbstractDatabaseModel
         $object_name = basename($this->directory);
 
         $submission = $input->post->get('jform', array(), 'ARRAY');
+
         $form = $this->loadForm($submission, null, array());
         if ($files = $input->files->get('jform')) {
             $form->bind($files);
@@ -146,6 +164,17 @@ class Model extends AbstractDatabaseModel
             $object_name = $data->object_name;
         }
 
+        // TODO: Move this back into the mimic files, not in the base
+        //we need to attach the extra acting_as parameter if the user is an admin so the api can process it for post requests as well
+        if($app->getUser()->admin) {
+            $data->acting_as = $app->getUser()->acting_as;
+        }
+
+        $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
+        if (isset($data->$id)) {
+            $object_id = $data->$id;
+        }
+
         if (!$object_id) {
             $object_id = $app->input->get('id', '');
         }
@@ -178,5 +207,45 @@ class Model extends AbstractDatabaseModel
         return $return;
     }
 
+    public function alterState($id, $state = -2)
+    {
+        $app = WebApp::getInstance();
+        $api = $app->getApi();
+        $input = $app->input;
+        //because mimic does their naming this way
+        $object_name = strtolower(basename($this->directory));
 
+        $data = new \stdClass;
+        $data->state = $state;
+
+        //we need to attach the extra acting_as parameter if the user is an admin so the api can process it for post requests as well
+        if($app->getUser()->admin) {
+            $data->acting_as = $app->getUser()->acting_as;
+        }
+
+        $return = true;
+        try {
+            $this->data = $data;
+
+            $url = $object_name . '/' . $id;
+
+            //try saving it
+            $return = $api->query($url, $data, array('Content-Type' => 'multipart/form-data; charset=utf-8'), 'post');
+        } catch(\InvalidArgumentException $e) {
+            var_dump($e);
+            $return = false;
+        } catch(\RuntimeException $e) {
+            var_dump($e);
+            $return = false;
+        }
+        if (!$return) {
+            exit();
+        }
+
+        if ($return && isset($return->{$this->keyField})) {
+            $return = $return->{$this->keyField};
+        }
+
+        return $return;
+    }
 }
