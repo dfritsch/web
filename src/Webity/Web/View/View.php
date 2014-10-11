@@ -9,6 +9,7 @@ class View extends AbstractHtmlView
 {
 
 	protected $layout = '';
+	protected $accessRules = array();
 
 	public function __construct($model, $paths = null)
 	{
@@ -34,7 +35,8 @@ class View extends AbstractHtmlView
 
 	public function render() {
 
-		$input = WebApp::getInstance()->input;
+		$app = WebApp::getInstance();
+		$input = $app->input;
 
 		if(!$this->layout) {
 			//set the correct layout
@@ -45,16 +47,26 @@ class View extends AbstractHtmlView
 			}
 		}
 
+		if (!$this->getPath($this->getLayout())) {
+			$this->layout = 'default';
+		}
+
+		//now that the layout has been determined let's make sure the user has access to it
+		if (!$this->accessCheck()) {
+			$this->layout = 'error';
+			$app->enqueueMessage('Permission denied', 'danger');
+		}
+
 		//probably will need to check if the method exists...
 		$getMethod .= ($this->layout != 'default') ? "get" . ucwords($this->layout) : "getItems";
 
-		if(method_exists($this->model, $getMethod)) {
-
-			$this->data = $this->model->$getMethod($input->get('id'));
-
-		} else {
-			//throw an error here? maybe just do nothing instead?
-			$this->data = array();
+		if (!$this->data) {
+			if(method_exists($this->model, $getMethod)) {
+				$this->data = $this->model->$getMethod($input->get('id'));
+			} else {
+				//throw an error here? maybe just do nothing instead?
+				$this->data = array();
+			}
 		}
 
 		return parent::render();
@@ -63,5 +75,18 @@ class View extends AbstractHtmlView
 	protected function renderLayout($name, $data = array()) {
 		$layout = new Layout($name);
 		return $layout->render($data);
+	}
+
+	public function accessCheck() {
+		$permitted = true;
+
+		if(in_array($this->layout, $this->accessRules)) {
+			$app = WebApp::getInstance();
+			$user = $app->getUser();
+
+			$permitted = (!is_null($user) && (int) $user->admin);
+		}
+
+		return $permitted;
 	}
 }

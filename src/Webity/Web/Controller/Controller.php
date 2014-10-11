@@ -10,6 +10,7 @@ class Controller extends AbstractController
 {
     protected $directory = '';
     protected $namespace = '';
+    protected $isPrivate = true;
     protected $authorizedGroups = array();
 
     public function __construct($input = null, $app = null) {
@@ -129,13 +130,17 @@ class Controller extends AbstractController
     }
 
     protected function getModel() {
+        if ($this->model) {
+            return $this->model;
+        }
+
         if (!file_exists($this->directory . '/Model.php')) {
             return false;
         }
 
         $class = $this->namespace . '\\Model';
 
-        return new $class($this->getApplication()->getDbo());
+        return $this->model = new $class($this->getApplication()->getDbo());
     }
 
     protected function getView() {
@@ -190,5 +195,9 @@ class Controller extends AbstractController
         if(!in_array($userGroup, $this->getAuthorizedGroups())) {
             $app->redirect($app->get('uri.base.full'));
         }
+    }
+
+    public function checkPrivate() {
+        return $this->isPrivate;
     }
 }

@@ -13,6 +13,7 @@ class Model extends AbstractDatabaseModel
     protected $directory = '';
     protected $namespace = '';
     protected $keyField = 'id';
+    protected $items = [];
 
     public function __construct(DatabaseDriver $db, Registry $state = null) {
         $rc = new \ReflectionClass(get_class($this));
@@ -26,6 +27,10 @@ class Model extends AbstractDatabaseModel
     public function getItems($id = null) {
         $app = WebApp::getInstance();
         $api = $app->getApi();
+
+        if ($this->items && !$id) {
+            return $this->items;
+        }
 
         //allows us to pass more get requests to the query (i'm sure there is a joomla framework way of doing this)
         // $request = $app->get('uri');
@@ -55,21 +60,51 @@ class Model extends AbstractDatabaseModel
         }
 
         try {
-            $response = $api->query($url);
-        } catch(\InvalidArgumentException $e) {
-        } catch(\RuntimeException $e) {
+            $response = array();
+            $i = 0;
+            do {
+                $resp = $api->query($url);
+
+                if (is_array($resp->data)) {
+                    $response = array_merge($response, $resp->data);
+                } elseif (is_object($resp->data)) {
+                    $response = $resp->data;
+                    break;
+                }
+
+                if (isset($resp->next)) {
+                    $url = $resp->next;
+                } else {
+                    $url = false;
+                }
+
+                // TODO: Add true pagination...
+                $i++;
+                if ($i > 25) {
+                    break;
+                }
+            } while ($url);
+        } catch(\Exception $e) {
+            if ($app->get('debug')) {
+                $app->enqueueMessage($e->getMessage(), 'danger');
+            }
         }
 
         if ($response) {
             // wrap this in its own name to handle the form "fields" attribute
-            $return[$object_name] = $response->data;
+            $return[$object_name] = $response;
 
-            if ($response->next) {
+            // TODO: Fix up the pagination checks, this likely won't work with the above pagination hack
+            if ($resp->next) {
                 $return['more'] = true;
             }
-            $return['start'] = $response->start;
-            $return['limit'] = $response->limit;
+            $return['start'] = $resp->start;
+            $return['limit'] = $resp->limit;
             $return['base_url'] = $object_name;
+        }
+
+        if (!$id) {
+            $this->items = $return;
         }
 
         return $return;
