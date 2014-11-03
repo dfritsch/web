@@ -164,9 +164,6 @@ class Model extends AbstractDatabaseModel
         }
 
         $data = $form->processSave();
-        // var_dump($submission);
-        // var_dump($data);
-        // exit();
 
         // append an '@' for files before they get shipped to the API
         foreach ($form->getFieldsets() as $fieldset) {
@@ -182,6 +179,10 @@ class Model extends AbstractDatabaseModel
                 }
             }
         }
+
+        // var_dump($submission);
+        // var_dump($data);
+        // exit();
 
         if (count($data) == 1 && isset($data->{$object_name})) {
             $data = $data->$object_name;
