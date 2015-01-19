@@ -34,7 +34,7 @@ function ajaxsave(url, data, context) {
 		context: context,
 		success: function(msg) {
 			if (msg.error) {
-				push_msg(msg.error);
+				push_msg(msg.error + ': ' + msg.message);
 			} else {
 				jQuery('.subtables fieldset > div').show();
 				if (msg.id) {
@@ -65,7 +65,9 @@ function ajaxsave(url, data, context) {
 			console.log(msg);
 			jQuery(this).remove();
 
-			push_msg('Item saved successfully', 'bg-success');
+			if (!msg.error) {
+				push_msg('Item saved successfully', 'bg-success');
+			}
 
 		},
 		error: function (x, status, error) {
@@ -140,6 +142,7 @@ jQuery(document).ready(function($) {
 
 	// $('.sortable').sortable();
 	$('.tabs').tabs();
+	$('.datepicker').datepicker({ dateFormat: "M dd',' yy" });
 
 	// $('body').on('click', '.btn', function(e) {
     //     if (!$(this).hasClass('allowDefault')) {
@@ -289,6 +292,7 @@ jQuery(document).ready(function($) {
 		$('.select2-container').remove();
 		//$('select').select2({width: '80%'});
 
+		$('.datepicker').datepicker({ dateFormat: "M dd',' yy" });
 		//$('.calendar').parent().find('input[type=text]').datepicker({ dateFormat: "M dd',' yy" });
 		//$('.calendar').hide();
 	});
@@ -327,11 +331,13 @@ jQuery(document).ready(function($) {
 		);
 
 		form = $this.closest('fieldset').find('.edit-form');
-		console.log($this.hasClass('edit-item'));
+
 		if ($this.hasClass('edit-item')) {
 			values = $.parseJSON($this.closest('fieldset').find('.record_values').val());
 			$.each(values, function(i, value) {
-				console.log($('.edit-form [name="'+i+'"]'));
+				if ($('.edit-form [name="'+i+'"]').attr('type') == 'file') {
+					return true;
+				}
 				$('.edit-form [name="'+i+'"]').val(value);
 			})
 		}
@@ -397,10 +403,10 @@ jQuery(document).ready(function($) {
 
 		data = $fields.closest('.edit-form').find('input, textarea, select').serializeArray();
 
-		token = new Object;
-		token.name = ((typeof window.token === 'undefined') ? window.token : $(this).closest('form').find('input').last().attr('name'));
-		token.value = 1;
-		data.push(token);
+		// token = new Object;
+		// token.name = ((typeof window.token === 'undefined') ? window.token : $(this).closest('form').find('input').last().attr('name'));
+		// token.value = 1;
+		// data.push(token);
 
 		format = new Object;
 		format.name = 'format';
@@ -442,7 +448,9 @@ jQuery(document).ready(function($) {
 		);
 
 		$.each(values, function(i, value) {
-			console.log($('.edit-form [name="'+i+'"]'));
+			if (fieldset.find('[name="'+i+'"]').attr('type') == 'file') {
+				return true;
+			}
 			fieldset.find('[name="'+i+'"]').val(value);
 		});
 		fieldset.find('.state').val(state);

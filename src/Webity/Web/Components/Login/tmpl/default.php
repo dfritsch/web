@@ -1,14 +1,14 @@
 <?php
+use Webity\Web\Application\WebApp;
+
 	$doc = $this->getDocument();
 	$doc->addScript('//code.jquery.com/jquery-1.11.0.min.js');
 ?>
-
-<form action="" method="post" role="form" class="form-horizontal login" enctype="multipart/form-data">
-	<div class="container-fluid">
-		<div class="col-md-6">
-			<fieldset class="adminform parentform">
-				<legend>Login</legend>
-                <hr />
+<div class="login-form">
+	<form action="" method="post" role="form" class="form-horizontal" enctype="multipart/form-data">
+		<div class="container-fluid">
+			<fieldset class="">
+				<h1 class="text-center"><span class="site-title"><?= WebApp::getInstance()->get('name'); ?></span></h1>
 				<div>
 					<?php
 						foreach($this->form->getFieldset('credentials') as $field) {
@@ -16,13 +16,13 @@
 						}
 					?>
 
-					<div class="control-group submit-group">
+					<div class="control-group">
 						<div class="controls">
-							<button type="submit" value="save" name="submit" class="btn btn-warning">Login</button>
+							<input type="submit" value="Login" name="deck-submit" class="btn btn-primary" />
 						</div>
 					</div>
 				</div>
 			</fieldset>
 		</div>
-	</div>
-</form>
+	</form>
+</div>

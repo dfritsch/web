@@ -9,8 +9,7 @@ if (!$field) {
 // If the field is hidden, only use the input.
 if ($field->hidden):
     echo $field->input;
-elseif (strtolower($field->type) == 'editor'):
-	?>
+elseif (strtolower($field->type) == 'editor'): ?>
 <div class="form-group">
     <?php echo $field->label; ?>
 	<?php echo $field->input; ?>
@@ -19,10 +18,8 @@ elseif (strtolower($field->type) == 'editor'):
 else:
 ?>
 <div class="form-group">
-    <?php echo str_replace('<label', '<label class="col-sm-5 control-label"', $field->label); ?>
-    <div class="col-sm-7">
-        <?php echo $field->input; ?>
-    </div>
+    <?php echo $field->label; ?>
+    <?php echo $field->input; ?>
 </div>
 <?php
 endif;

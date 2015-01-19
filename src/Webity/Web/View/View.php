@@ -84,7 +84,7 @@ class View extends AbstractHtmlView
 			$app = WebApp::getInstance();
 			$user = $app->getUser();
 
-			$permitted = (!is_null($user) && (int) $user->admin);	
+			$permitted = (!is_null($user) && (int) $user->admin);
 		}
 
 		return $permitted;
