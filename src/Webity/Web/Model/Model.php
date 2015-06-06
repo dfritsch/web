@@ -128,6 +128,10 @@ class Model extends AbstractDatabaseModel
         if ($data->video) {
             $data->video = '@' . $data->video;
         }
+        
+        if($data->file) {
+            $data->file = '@' . $data->file;
+        }
 
         //we need to attach the extra acting_as parameter if the user is an admin so the api can process it for post requests as well
         if($app->getUser()->admin) {
