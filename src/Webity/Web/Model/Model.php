@@ -43,18 +43,6 @@ class Model extends AbstractDatabaseModel
             $url .= $start ? '&search=' . $search : '?search=' . $search;
         }
 
-        //only bother doing this extra stuff if the user is an admin
-        if($app->getUser()->admin) {
-            $acting_as = $app->input->get('acting_as', null, 'STRING');
-            if($acting_as) {
-                $url .= ($start || $search) ? '&acting_as=' . (int)$acting_as : '?acting_as=' . (int)$acting_as;
-                //we also need to set the current users session
-                $_SESSION['user']->acting_as = (int)$acting_as;
-            } else { //always do this
-                $url .= (strpos($url, '?') !== FALSE) ? '&acting_as=' . (int)$_SESSION['user']->acting_as : '?acting_as=' . (int)$_SESSION['user']->acting_as;
-            }
-        }
-
         try {
             $response = $api->query($url);
         } catch(\InvalidArgumentException $e) {
@@ -175,5 +163,45 @@ class Model extends AbstractDatabaseModel
         return $return;
     }
 
+    public function alterState($id, $state = -2)
+    {
+        $app = WebApp::getInstance();
+        $api = $app->getApi();
+        $input = $app->input;
+        //because mimic does their naming this way
+        $object_name = strtolower(basename($this->directory));
 
+        $data = new \stdClass;
+        $data->state = $state;
+
+        //we need to attach the extra acting_as parameter if the user is an admin so the api can process it for post requests as well
+        if($app->getUser()->admin) {
+            $data->acting_as = $app->getUser()->acting_as;
+        }
+
+        $return = true;
+        try {
+            $this->data = $data;
+
+            $url = $object_name . '/' . $id;
+            
+            //try saving it
+            $return = $api->query($url, $data, array('Content-Type' => 'multipart/form-data; charset=utf-8'), 'post');
+        } catch(\InvalidArgumentException $e) {
+            var_dump($e);
+            $return = false;
+        } catch(\RuntimeException $e) {
+            var_dump($e);
+            $return = false;
+        }
+        if (!$return) {
+            exit();
+        }
+
+        if ($return && isset($return->{$this->keyField})) {
+            $return = $return->{$this->keyField};
+        }
+
+        return $return;
+    }
 }

@@ -329,11 +329,13 @@ jQuery(document).ready(function($) {
 		);
 
 		form = $this.closest('fieldset').find('.edit-form');
-		console.log($this.hasClass('edit-item'));
+
 		if ($this.hasClass('edit-item')) {
 			values = $.parseJSON($this.closest('fieldset').find('.record_values').val());
 			$.each(values, function(i, value) {
-				console.log($('.edit-form [name="'+i+'"]'));
+				if ($('.edit-form [name="'+i+'"]').attr('type') == 'file') {
+					return true;
+				}
 				$('.edit-form [name="'+i+'"]').val(value);
 			})
 		}
@@ -444,7 +446,9 @@ jQuery(document).ready(function($) {
 		);
 
 		$.each(values, function(i, value) {
-			console.log($('.edit-form [name="'+i+'"]'));
+			if (fieldset.find('[name="'+i+'"]').attr('type') == 'file') {
+				return true;
+			}
 			fieldset.find('[name="'+i+'"]').val(value);
 		});
 		fieldset.find('.state').val(state);

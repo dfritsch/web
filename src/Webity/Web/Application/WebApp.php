@@ -185,10 +185,16 @@ class WebApp extends AbstractWebApplication
 		$this->redirect($this->config->get('uri.base.path'));
 	}
 
-	protected function setUser(\stdClass $user) {
+    /**
+     * @param \stdClass $user
+     */
+    protected function setUser(\stdClass $user) {
 		$this->user = $user;
 	}
 
+    /**
+     * @return \stdClass
+     */
 	public function getUser()
 	{
 		if ($this->user) {
