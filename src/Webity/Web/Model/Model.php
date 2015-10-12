@@ -138,7 +138,11 @@ class Model extends AbstractDatabaseModel
             $data->acting_as = $app->getUser()->acting_as;
         }
 
-        $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
+        if($this->keyField) {
+            $id = $this->keyField;
+        } else {
+            $id = strtolower(preg_replace('/(s)$/' ,'', $object_name)) . 'Id';
+        }
         $object_id = $data->$id;
 
         $return = true;
