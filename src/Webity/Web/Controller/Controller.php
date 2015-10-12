@@ -117,6 +117,15 @@ class Controller extends AbstractController
 
         $app->redirect($app->get('uri.base.full') . strtolower(basename($this->directory)));
     }
+    
+    public function removePermanent()
+    {
+        $app = $this->getApplication();
+        $model = $this->getModel();
+        $model->alterState($app->input->get('id', 0, 'INT'), -3);
+
+        $app->redirect($app->get('uri.base.full') . strtolower(basename($this->directory)));
+    }
 
     public function restore()
     {
